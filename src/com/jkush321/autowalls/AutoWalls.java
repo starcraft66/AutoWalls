@@ -130,6 +130,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static boolean lateJoins;
 	public static boolean preventFireBeforeWallsFall;
 
+    @Override
 	public void onEnable()
 	{
 		plugin = this;
@@ -271,14 +272,14 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			System.out.println("[AutoWalls] Successfully hooked into TagAPI!");
 		}
 	}
-	@SuppressWarnings("deprecation")
+    @Override
 	public void onDisable()
 	{
         if (announcerState){
-		announcer.stop();
+		announcer.interrupt();
         }
-		beat.stop();
-		dropper.stop();
+		beat.interrupt();
+		dropper.interrupt();
 	}
 	
 	public boolean onCommand(CommandSender cmdSender, Command cmd, String cmdString, String[] args)
