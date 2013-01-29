@@ -12,3 +12,5 @@
 
 .idea/*
 out/*
+*.iml
+META-INF/

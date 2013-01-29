@@ -29,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class KitEnchanter extends Kit {
 
-    ItemStack[] contents = new ItemStack[]{ new ItemStack(Material.BOOKSHELF, 3), new ItemStack(Material.ENCHANTMENT_TABLE, 1), new ItemStack(Material.IRON_CHESTPLATE, 1), new ItemStack(Material.IRON_SWORD, 1), new ItemStack(Material.EXP_BOTTLE, 20)};
+    ItemStack[] contents = new ItemStack[]{ new ItemStack(Material.BOOKSHELF, 3), new ItemStack(Material.ENCHANTMENT_TABLE, 1), new ItemStack(Material.IRON_CHESTPLATE, 1), new ItemStack(Material.IRON_SWORD, 1), new ItemStack(Material.EXP_BOTTLE, 36)};
 
     @Override
     public ItemStack[] getItemStack() {
