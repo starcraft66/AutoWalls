@@ -104,6 +104,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static int[] greenSpawn = new int[3];
 	public static int[] orangeSpawn = new int[3];
 	public static int mapNumber;
+    public static Boolean announcerState;
 	public static String announcerName;
 	public static Thread beat;
 	public static Thread announcer;
@@ -129,6 +130,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static boolean lateJoins;
 	public static boolean preventFireBeforeWallsFall;
 
+    @Override
 	public void onEnable()
 	{
 		plugin = this;
@@ -141,6 +143,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		config.addDefault("priorities", true);
 		config.addDefault("team-size", 4);
 		config.addDefault("next-map", 1);
+        config.addDefault("enable-annaouncer", true);
 		config.addDefault("announcer-name", "Announcer");
 		config.addDefault("announcements", "Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!");
 		config.addDefault("map-votes", true);
@@ -165,7 +168,8 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		
 		config.options().copyDefaults(true);
 	    saveConfig();	    
-	    
+
+        announcerState = config.getBoolean("enable-announcer");
 	    announcerName = config.getString("announcer-name");
 	    mapNumber = config.getInt("next-map");
 	    mapVotes = config.getBoolean("map-votes");
@@ -226,7 +230,8 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    }
 	    
 	    teamSize = config.getInt("team-size");
-	    
+
+        if (announcerState) {
 	    Announcer a = new Announcer();
 	    
 	    //My CC3.0 Attribution license requires you to leave this in some way
@@ -241,7 +246,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    
 	    announcer = new Thread(a);
 	    announcer.start();
-	    
+        }
 	    beat = new Thread(new Heartbeat());
 	    beat.start();
 	    
@@ -268,12 +273,14 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			System.out.println("[AutoWalls] Successfully hooked into TagAPI!");
 		}
 	}
-	@SuppressWarnings("deprecation")
+    @Override
 	public void onDisable()
 	{
-		announcer.stop();
-		beat.stop();
-		dropper.stop();
+        if (announcerState){
+		announcer.interrupt();
+        }
+		beat.interrupt();
+		dropper.interrupt();
 	}
 	
 	public boolean onCommand(CommandSender cmdSender, Command cmd, String cmdString, String[] args)
