@@ -925,6 +925,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			}
 		for (Player p : playing)
 		{
+            p.sendMessage(ChatColor.DARK_AQUA + "To chat only with your teammates, enable team chatting with " + ChatColor.GREEN + "/tc" + ChatColor.DARK_AQUA + ".");
 			p.sendMessage(ChatColor.YELLOW + "Good Luck!");
 			if (KitManager.getKit(p) != null)
 			{
