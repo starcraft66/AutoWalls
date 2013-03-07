@@ -897,11 +897,6 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			}
 			playing.add(p);
 			p.setAllowFlight(false);
-			p.setGameMode(GameMode.SURVIVAL);
-			for (Player pl : Bukkit.getOnlinePlayers())
-			{
-				if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
-			}
 			removeDeadPlayer(p.getName());
 			Tabs.updateAll();
 			Tags.refreshPlayer(p);
@@ -920,18 +915,38 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				if (team.equals("red"))
 				{
 					p.teleport(new Location(p.getWorld(), redSpawn[0], redSpawn[1], redSpawn[2]));
+                    p.setGameMode(GameMode.SURVIVAL);
+                    for (Player pl : Bukkit.getOnlinePlayers())
+                    {
+                        if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
+                    }
 				}
 				else if (team.equals("blue"))
 				{
 					p.teleport(new Location(p.getWorld(), blueSpawn[0], blueSpawn[1], blueSpawn[2]));
+                    p.setGameMode(GameMode.SURVIVAL);
+                    for (Player pl : Bukkit.getOnlinePlayers())
+                    {
+                        if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
+                    }
 				}
 				else if (team.equals("orange"))
 				{
 					p.teleport(new Location(p.getWorld(), orangeSpawn[0], orangeSpawn[1], orangeSpawn[2]));
+                    p.setGameMode(GameMode.SURVIVAL);
+                    for (Player pl : Bukkit.getOnlinePlayers())
+                    {
+                        if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
+                    }
 				}
 				else if (team.equals("green"))
 				{
 					p.teleport(new Location(p.getWorld(), greenSpawn[0], greenSpawn[1], greenSpawn[2]));
+                    p.setGameMode(GameMode.SURVIVAL);
+                    for (Player pl : Bukkit.getOnlinePlayers())
+                    {
+                        if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
+                    }
 				}
 				p.sendMessage(ChatColor.YELLOW + "It is too late to receive a kit!");
 				
@@ -990,6 +1005,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			}
 		for (Player p : playing)
 		{
+            p.setGameMode(GameMode.SURVIVAL);
+            for (Player pl : Bukkit.getOnlinePlayers())
+            {
+                if (p != pl && !playing.contains(p)) p.hidePlayer(pl);
+            }
             p.sendMessage(ChatColor.DARK_AQUA + "To chat only with your teammates, enable team chatting with " + ChatColor.GREEN + "/tc" + ChatColor.DARK_AQUA + ".");
 			p.sendMessage(ChatColor.YELLOW + "Good Luck!");
 			if (KitManager.getKit(p) != null)
