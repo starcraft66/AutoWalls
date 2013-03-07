@@ -1300,13 +1300,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				}
 				else e.getPlayer().sendMessage(ChatColor.GRAY + "Invalid input, type a 1 or a 2.");
 			}
-			else
-			{
-				//e.getPlayer().sendMessage("�7There is a vote in progress, type a 1 or a 2.");
-			}
-			//e.setCancelled(true);
 		}
-		//if (gameOver || voting) e.setCancelled(true);
 		
 		if (!e.isCancelled())
 		{
