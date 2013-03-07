@@ -59,7 +59,6 @@ public class KitManager {
 		kitList.add(new KitMiner());
 		kitList.add(new KitParatrooper());
 		kitList.add(new KitPyro());
-		kitList.add(new KitPyro2());
 		kitList.add(new KitSmelter());
 		kitList.add(new KitSpy());
 		kitList.add(new KitTools());

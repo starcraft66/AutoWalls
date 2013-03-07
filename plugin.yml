@@ -2,6 +2,11 @@ name: AutoWalls
 main: com.jkush321.autowalls.AutoWalls
 version: 1.0
 commands:
+  autowalls:
+    description: Display version and reload config.
+    usage: /autowalls <reload>
+    permission: walls.player
+    permission-message: You can't do that
   join:
     description: Joins a team
     usage: /join [Red|Blue|Green|Orange]
@@ -119,7 +124,7 @@ commands:
     permission-message: Sorry, can't allow that command
   prefix:
     description: Set a player prefix
-    usage: /prefix <player> <prefix>
+    usage: /prefix set|remove <player> (prefix)
     permission: walls.op
     permission-message: Sorry, you do not have permission to do that!
 permissions:

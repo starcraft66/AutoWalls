@@ -82,6 +82,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.jkush321.autowalls.kits.Kit;
 import com.jkush321.autowalls.kits.KitManager;
+import sun.usagetracker.UsageTrackerClient;
 
 public class AutoWalls extends JavaPlugin implements Listener {
 
@@ -279,7 +280,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		if (Bukkit.getPluginManager().getPlugin("TabAPI")!=null)
 		{
 			useTabApi=true;
-			System.out.println("[AutoWalls] Successfully hooked into TagAPI!");
+			System.out.println("[AutoWalls] Successfully hooked into TabAPI!");
 		}
 		else if (useTabApi)
 		{
@@ -299,8 +300,23 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	
 	public boolean onCommand(CommandSender cmdSender, Command cmd, String cmdString, String[] args)
 	{
-		if (gameOver) return true;
-		if (cmd.getLabel().equalsIgnoreCase("join"))
+        if (cmd.getLabel().equalsIgnoreCase("autowalls")) {
+
+            if (args.length == 0){
+            cmdSender.sendMessage(ChatColor.AQUA + "AutoWalls v." + ChatColor.YELLOW + version);
+            cmdSender.sendMessage(ChatColor.RED + "Usage : /autowalls <reload>");
+                return true;
+            }
+
+            if (args[0].equalsIgnoreCase("reload")) {
+                if (cmdSender.isOp() || cmdSender.hasPermission("walls.op")){
+                    reloadConfig();
+                    saveConfig();
+                    return  true;
+                }
+            }
+        }
+		else if (cmd.getLabel().equalsIgnoreCase("join"))
 		{
 			if (cmdSender instanceof Player)
 			{
@@ -775,41 +791,61 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			}
 			else
 			{
-				String playerName = "";
-				if (Bukkit.getPlayer(args[0]) == null || !Bukkit.getPlayer(args[0]).isOnline())
-				{
-					playerName = args[0];
-				}
-				else
-				{
-					playerName = Bukkit.getPlayer(args[0]).getName();
-				}
-				String fullPrefix = "";
-				if (args.length == 2) fullPrefix = args[1];
-				else
-				{
-					for (int i = 0; i < args.length; i++)
-					{
-						if (i > 0)
-						{
-							fullPrefix += args[i] + " ";
-						}
-					}
-					fullPrefix = fullPrefix.trim();
-				}
-				config.set("prefix." + playerName, fullPrefix);
-				saveConfig();
-				if (Bukkit.getPlayer(playerName).isOnline() && Bukkit.getPlayer(playerName) != null)
-				{
-					if (config.isSet("prefix." + Bukkit.getPlayer(playerName).getName())) Bukkit.getPlayer(playerName).setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getString("prefix." + Bukkit.getPlayer(playerName).getName()).replace("{pri}", config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName())+"") + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE));
-				}
-				cmdSender.sendMessage(ChatColor.YELLOW + "Set " + playerName + "'s prefix to " + ChatColor.WHITE + "\"" + fullPrefix + ChatColor.WHITE + "\"");
+
+                String playerName = "";
+                if (Bukkit.getPlayer(args[1]) == null || !Bukkit.getPlayer(args[1]).isOnline())
+                {
+                    playerName = args[1];
+                }
+                else
+                {
+                    playerName = Bukkit.getPlayer(args[1]).getName();
+                }
+                String fullPrefix = "";
+                for (int i = 2; i < args.length; i++)
+                {
+                    if (i > 0)
+                    {
+                        fullPrefix += args[i] + " ";
+                    }
+                }
+                fullPrefix = fullPrefix.trim();
+
+                if (args[0].equalsIgnoreCase("set")) {
+                    config.set("prefix." + playerName, fullPrefix);
+                    saveConfig();
+                    if (Bukkit.getPlayer(playerName).isOnline() && Bukkit.getPlayer(playerName) != null)
+                    {
+                        if (config.isSet("prefix." + Bukkit.getPlayer(playerName).getName())) {Bukkit.getPlayer(playerName).setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getString("prefix." + Bukkit.getPlayer(playerName).getName()).replace("{pri}", config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName())+"") + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE));}
+                    }
+                    cmdSender.sendMessage(ChatColor.YELLOW + "Set " + playerName + "'s prefix to " + ChatColor.WHITE + "\"" + fullPrefix + ChatColor.WHITE + "\"");
+                    return true;
+                }
+
+                if (args[0].equalsIgnoreCase("remove")) {
+
+                    if (config.getBoolean("priorities") == true)
+                    {
+                        if (Bukkit.getPlayer(playerName).isOnline()) {
+                            getConfig().set("prefix." + playerName, null);
+                            saveConfig();
+                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed" + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
+                            return true;
+                        }
+                    }
+                    if ( Bukkit.getPlayer(playerName).hasPermission("walls.op"))  {Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED +  Bukkit.getPlayer(playerName).getName() + ChatColor.GRAY + ChatColor.WHITE);}
+                    if (config.isSet("prefix." +  Bukkit.getPlayer(playerName).getName())) {  Bukkit.getPlayer(playerName).setDisplayName(        ChatColor.translateAlternateColorCodes('&', config.getString("prefix." +  Bukkit.getPlayer(playerName).getName())).replace("{pri}", config.getInt("votes.players." +  Bukkit.getPlayer(playerName).getName())+"") +  Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE);
+                        return true;
+                    }
+                    return true;
+                }
+
+                else return false;
+
 			}
 		}
-		else return false;
-		
-		return true;
-	}
+    return false;
+    }
 	
 	public void joinTeam(Player p, String team)
 	{
@@ -1049,10 +1085,10 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		if (config.getBoolean("priorities") == true)
 		{
 			if (config.isSet("votes.players." + e.getPlayer().getName())) { e.getPlayer().setDisplayName(ChatColor.YELLOW + "[" + config.getInt("votes.players." + e.getPlayer().getName()) + "]" + ChatColor.GRAY + e.getPlayer().getDisplayName() + ChatColor.WHITE); }
-			else e.getPlayer().setDisplayName(ChatColor.WHITE + "[0]" + e.getPlayer().getDisplayName());
+			else e.getPlayer().setDisplayName(ChatColor.YELLOW + "[0]" + ChatColor.GRAY + e.getPlayer().getDisplayName() + ChatColor.WHITE);
 		}
 		if (e.getPlayer().hasPermission("walls.op")) e.getPlayer().setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + e.getPlayer().getName() + ChatColor.GRAY + ChatColor.WHITE);
-		if (config.isSet("prefix." + e.getPlayer().getName())) e.getPlayer().setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getString("prefix." + e.getPlayer().getName())).replace("{pri}", config.getInt("votes.players." + e.getPlayer().getName())+"") + e.getPlayer().getName() + ChatColor.WHITE);
+		if (config.isSet("prefix." + e.getPlayer().getName())) e.getPlayer().setDisplayName(        ChatColor.translateAlternateColorCodes('&', config.getString("prefix." + e.getPlayer().getName())).replace("{pri}", config.getInt("votes.players." + e.getPlayer().getName())+"") + e.getPlayer().getName() + ChatColor.WHITE);
 
 		if (Bukkit.getOnlinePlayers().length == Bukkit.getMaxPlayers())
 		{
@@ -1102,6 +1138,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				p.hidePlayer(e.getPlayer());
 			}
 		}
+        e.getPlayer().setGameMode(GameMode.ADVENTURE);
 		if (e.getPlayer().hasPermission("walls.op"))
 		{
 			UpdateChecker.checkAndSendMessage(e.getPlayer());
@@ -1226,34 +1263,12 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			if (e.getBlock().getY() > 94) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
 		}
 	}
-	/*@EventHandler
-	public void onVote(VotifierEvent e)
-	{
-		Vote v = e.getVote();
-		Player p = Bukkit.getPlayer(v.getUsername());
-		if (config.isSet("votes.players." + v.getUsername()))
-		{
-			config.set("votes.players." + v.getUsername(), config.getInt("votes.players." + v.getUsername()) + 1);
-		}
-		else config.set("votes.players." + v.getUsername(), 1);
-		if (Bukkit.getPlayer(v.getUsername()).isOnline()) Bukkit.getPlayer(v.getUsername()).sendMessage("�eThank's for voting! Your priority is now " + config.getInt("votes.players." + v.getUsername()));
-		Bukkit.broadcastMessage("�3" + v.getUsername() + " Voted For The Server On Planet Minecraft And Now Has Login Priority of " + config.getInt("votes.players." + v.getUsername()) + "! You Can Vote By Clicking This Link " + votelink + " It Is Easy, No Registration Required");
-		saveConfig();
-		p.setDisplayName(p.getName());
-		if (config.isSet("votes.players." + p.getName()) && config.getInt("votes.players." + p.getName()) >= 20) { p.setDisplayName("�3" + p.getName() + "�f"); }
-		if (config.isSet("votes.players." + p.getName()) && config.getInt("votes.players." + p.getName()) >= 250) { p.setDisplayName("�4" + p.getName() + "�f"); }
-		
-		if (config.getBoolean("priorities") == true)
-		{
-			if (config.isSet("votes.players." + p.getName())) { p.setDisplayName("�e[" + config.getInt("votes.players." + p.getName()) + "]�7" + p.getDisplayName() + "�f"); }
-			else p.setDisplayName("�f[0]" +p.getDisplayName());
-		}
-	}*/
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e)
 	{
 		if (gameInProgress) spectate(e.getPlayer());
 	}
+
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChat(AsyncPlayerChatEvent e)
 	{
