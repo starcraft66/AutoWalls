@@ -829,18 +829,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
                         if (Bukkit.getPlayer(playerName).isOnline()) {
                             getConfig().set("prefix." + playerName, null);
                             saveConfig();
-                            if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName()) && config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) >= 20) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_AQUA + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE); }
-                            if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName()) && config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) >= 250) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_RED + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE); }
-
-                            if (config.getBoolean("priorities") == true)
-                            {
-                                if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName())) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.YELLOW + "[" + config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) + "]" + ChatColor.GRAY + Bukkit.getPlayer(playerName).getDisplayName() + ChatColor.WHITE); }
-                                else Bukkit.getPlayer(playerName).setDisplayName(ChatColor.YELLOW + "[0]" + ChatColor.GRAY + Bukkit.getPlayer(playerName).getDisplayName() + ChatColor.WHITE);
-                            }
-                            if (Bukkit.getPlayer(playerName).hasPermission("walls.op")) Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + Bukkit.getPlayer(playerName).getName() + ChatColor.GRAY + ChatColor.WHITE);
-
-
-                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
+                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed" + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
                             return true;
                         }
                     }
