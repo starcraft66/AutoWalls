@@ -39,7 +39,7 @@ public class TeamChat {
 	{
 		if (!playing.contains(p))
 		{
-			sayToTeam(message, 4);
+			sayToTeam(message, 4, p);
 		}
 		else
 		{
@@ -47,26 +47,26 @@ public class TeamChat {
 			{
 				if (redTeam.contains(p))
 				{
-					sayToTeam(message,0);
+					sayToTeam(message,0, p);
 				}
 				else if (blueTeam.contains(p))
 				{
-					sayToTeam(message,1);
+					sayToTeam(message,1, p);
 				}
 				else if (greenTeam.contains(p))
 				{
-					sayToTeam(message,2);
+					sayToTeam(message,2, p);
 				}
 				else if (orangeTeam.contains(p))
 				{
-					sayToTeam(message,3);
+					sayToTeam(message,3, p);
 				}
 			}
-			else sayToTeam(message,5);
+			else sayToTeam(message,5, p);
 		}
 		return true;
 	}
-	public static void sayToTeam(String message, int team) //red = 0; blue = 1; green = 2; orange = 3; 4 = spectators; other = global;
+	public static void sayToTeam(String message, int team, Player pl) //red = 0; blue = 1; green = 2; orange = 3; 4 = spectators; other = global;
 	{
 		if (team==0)
 		{
@@ -110,19 +110,19 @@ public class TeamChat {
 		}
 		else
 		{
-            if (team == 0) {
+            if (redTeam.contains(pl)) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.RED + "RED" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
 
             }
-            else if (team == 1) {
+            else if (blueTeam.contains(pl)) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.BLUE + "BLUE" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
 
             }
-            else if (team == 2) {
+            else if (greenTeam.contains(pl)) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.GREEN + "GREEN" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
 
             }
-            else if (team == 3) {
+            else if (orangeTeam.contains(pl)) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.GOLD + "ORANGE" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
 
             }
