@@ -104,7 +104,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static int[] blueSpawn = new int[3];
 	public static int[] greenSpawn = new int[3];
 	public static int[] orangeSpawn = new int[3];
-	public static int mapNumber;
+    public static int[] redQuadrant = new int[4];
+    public static int[] blueQuadrant = new int[4];
+    public static int[] greenQuadrant = new int[4];
+    public static int[] orangeQuadrant = new int[4];
+    public static int mapNumber;
     public static Boolean announcerState;
 	public static String announcerName;
 	public static Thread beat;
@@ -198,7 +202,9 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    useTabApi = config.getBoolean("use-tab-api");
 	    
 	    if (mapNumber == 1)
-	    {	
+	    {
+            //Spawns
+
 			redSpawn[0] = 297;
 			redSpawn[1] = 118;
 			redSpawn[2] = -848;
@@ -214,24 +220,75 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			orangeSpawn[0] = 291;
 			orangeSpawn[1] = 118;
 			orangeSpawn[2] = -736;
-	    }
-	    else
+
+            //Quadrants
+            //xMax
+            redQuadrant[0] = 346;
+            //xMin
+            redQuadrant[1] = 286;
+            //zMax
+            redQuadrant[2] = -794;
+            //zMin
+            redQuadrant[3] = -854;
+
+            blueQuadrant[0] = 408;
+            blueQuadrant[1] = 349;
+            blueQuadrant[2] = -794;
+            blueQuadrant[3] = -854;
+
+            greenQuadrant[0] = 409;
+            greenQuadrant[1] = 349;
+            greenQuadrant[2] = -731;
+            greenQuadrant[3] = -791;
+
+            orangeQuadrant[0] = 346;
+            orangeQuadrant[1] = 286;
+            orangeQuadrant[2] = -731;
+            orangeQuadrant[3] = -791;
+
+        }
+	    else if (mapNumber == 2)
 	    {
-	    	redSpawn[0] = -868;
+
+            //Spawns
+
+	    	redSpawn[0] = -857;
 			redSpawn[1] = 74;
-			redSpawn[2] = -212;
+			redSpawn[2] = -204;
 			
-			blueSpawn[0] = -868;
+			blueSpawn[0] = -857;
 			blueSpawn[1] = 74;
-			blueSpawn[2] = -132;
+			blueSpawn[2] = -140;
 			
-			greenSpawn[0] = -718;
+			greenSpawn[0] = -729;
 			greenSpawn[1] = 74;
-			greenSpawn[2] = -132;
+			greenSpawn[2] = -140;
 			
-			orangeSpawn[0] = -718;
+			orangeSpawn[0] = -729;
 			orangeSpawn[1] = 74;
-			orangeSpawn[2] = -212;
+			orangeSpawn[2] = -204;
+
+            //Quadrants
+
+            redQuadrant[0] = -804;
+            redQuadrant[1] = -863;
+            redQuadrant[2] = -183;
+            redQuadrant[3] = -242;
+
+            blueQuadrant[0] = -804;
+            blueQuadrant[1] = -863;
+            blueQuadrant[2] = -103;
+            blueQuadrant[3] = -162;
+
+            greenQuadrant[0] = -724;
+            greenQuadrant[1] = -783;
+            greenQuadrant[2] = -103;
+            greenQuadrant[3] = -162;
+
+            orangeQuadrant[0] = -724;
+            orangeQuadrant[1] = -783;
+            orangeQuadrant[2] = -183;
+            orangeQuadrant[3] = -242;
 	    }
 	    
 	    teamSize = config.getInt("team-size");
@@ -289,13 +346,14 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 	}
     @Override
+    @SuppressWarnings("Deprecated")
 	public void onDisable()
 	{
         if (announcerState){
-		announcer.interrupt();
+		announcer.stop();
         }
-		beat.interrupt();
-		dropper.interrupt();
+		beat.stop();
+		dropper.stop();
 	}
 	
 	public boolean onCommand(CommandSender cmdSender, Command cmd, String cmdString, String[] args)
@@ -841,10 +899,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
                 }
 
                 else return false;
-
 			}
 		}
-    return false;
+        else return false;
+
+    return true;
     }
 	
 	public void joinTeam(Player p, String team)
@@ -1006,7 +1065,6 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				p.getInventory().addItem(KitManager.getKit(p).getItemStack());
 			}
 		}
-		gameInProgress=true;
 		for (Player p : Bukkit.getOnlinePlayers())
 		{
 			if (!playing.contains(p))
@@ -1014,6 +1072,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				spectate(p);
 			}
 		}
+        gameInProgress=true;
 	}
 	public void endGame(String team, String players)
 	{
@@ -1220,6 +1279,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e)
 	{
+        Player p = e.getPlayer();
 		if (e.getPlayer().hasPermission("walls.op")) return;
 		if (!playing.contains(e.getPlayer())) e.setCancelled(true);
 		if (!gameInProgress) e.setCancelled(true);
@@ -1231,9 +1291,9 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			if (e.getBlock().getZ()<-853) e.setCancelled(true);
 			if (e.getBlock().getX()<286) e.setCancelled(true);
 			if (e.getBlock().getZ()>-731) e.setCancelled(true);
-			if (e.getBlock().getY() > 139) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
+			if (e.getBlock().getY() > 137) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
 		}
-		else
+		else if (mapNumber ==2)
 		{
 			if (e.getBlock().getZ()==-182) e.setCancelled(true);
 			if (e.getBlock().getZ()==-164) e.setCancelled(true);
@@ -1253,7 +1313,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				e.getPlayer().sendMessage(ChatColor.AQUA + "You can not touch this grave!");
 			}
 		}
-	}
+    }
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e)
 	{
@@ -1270,7 +1330,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			if (e.getBlock().getZ()>-731) e.setCancelled(true);
 			if (e.getBlock().getY() > 138) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
 		}
-		else
+		else if (mapNumber ==2)
 		{
 			if (e.getBlock().getZ()==-182) e.setCancelled(true);
 			if (e.getBlock().getZ()==-164) e.setCancelled(true);
@@ -1522,7 +1582,9 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onWeather(WeatherChangeEvent e)
 	{
-		e.setCancelled(true);
+        if (e.getWorld().hasStorm()) {
+            e.getWorld().setStorm(false);
+        }
 	}
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e)
@@ -1652,7 +1714,50 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public void onPlayerMove(PlayerMoveEvent e)
 	{
 		setLastEventToNow(e.getPlayer());
+
+        Player p = e.getPlayer();
+
+        //FINALLY! Prevent pretty much all forms of cheating by not allowing players to leave their quadrants.
+
+        if (gameInProgress) {
+            if (WallDropper.time > 0) {
+                //Game must be in progress
+                if (playing.contains(p)) {
+                    //Only affect players
+                    if(redTeam.contains(p)) {
+                            if (e.getTo().getX() > redQuadrant[0] || e.getTo().getX() < redQuadrant[1] || e.getTo().getZ() > redQuadrant[2] || e.getTo().getZ() < redQuadrant[3]) {
+                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
+                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                            }
+
+                    }
+                    else if (blueTeam.contains(p)) {
+                            if (e.getTo().getX() > blueQuadrant[0] || e.getTo().getX() <  blueQuadrant[1] || e.getTo().getZ() > blueQuadrant[2] || e.getTo().getZ() < blueQuadrant[3]) {
+                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
+                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                            }
+
+                    }
+                    else if (greenTeam.contains(p)) {
+                            if (e.getTo().getX() > greenQuadrant[0] || e.getTo().getX() < greenQuadrant[1] || e.getTo().getZ() > greenQuadrant[2] || e.getTo().getZ() < greenQuadrant[3]) {
+                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
+                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                            }
+
+                    }
+                    else if (orangeTeam.contains(p)) {
+
+                            if (e.getTo().getX() > orangeQuadrant[0] || e.getTo().getX() < orangeQuadrant[1] || e.getTo().getZ() > orangeQuadrant[2] || e.getTo().getZ() < orangeQuadrant[3]) {
+                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
+                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                            }
+
+                    }
+                }
+            }
+        }
 	}
+
 	@EventHandler
 	public void onSignUpdate(SignChangeEvent e)
 	{
