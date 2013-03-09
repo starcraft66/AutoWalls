@@ -74,6 +74,8 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.event.weather.LightningStrikeEvent;
+import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -370,6 +372,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
                 if (cmdSender.isOp() || cmdSender.hasPermission("walls.op")){
                     reloadConfig();
                     saveConfig();
+                    cmdSender.sendMessage(ChatColor.GREEN + "Config reloaded!");
                     return  true;
                 }
             }
@@ -381,7 +384,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				Player p = (Player) cmdSender;
 				boolean allowed = false;
 				if (config.getInt("votes.players." + p.getName()) >= earlyJoinPriority && !gameInProgress) { allowed = true; }
-				if (canJoin && !gameInProgress){ allowed = true; }
+				if (canJoin && !gameInProgress && !gameOver){ allowed = true; }
 				if (playing.size()<teamSize*4 && config.getInt("votes.players." + p.getName()) >= lateJoinPriority && WallDropper.time > 0) { allowed = true; }
 				if (!allowed)
 				{
@@ -615,7 +618,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		else if (cmd.getLabel().equalsIgnoreCase("pri"))
 		{
 			if (args.length!=2 && args.length!=3) return false;
-			if (!cmdSender.hasPermission("walls.op")) return false;
+			if (!cmdSender.hasPermission("walls.op") || !cmdSender.hasPermission("walls.pri")) return false;
 			Player pl = Bukkit.getPlayer(args[0]);
 			int a = Integer.parseInt(args[1]);
 			if (config.isSet("votes.players." + pl.getName()))
@@ -639,7 +642,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 		else if (cmd.getLabel().equalsIgnoreCase("tpplayers"))
 		{
-			if (!cmdSender.hasPermission("walls.op")) return false;
+			if (!cmdSender.hasPermission("walls.op")||!cmdSender.hasPermission("walls.mod")) return false;
 			for (Player p : playing)
 			{
 				if (p!=(Player)cmdSender)
@@ -649,7 +652,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 		else if (cmd.getLabel().equalsIgnoreCase("tpspecs"))
 		{
-			if (!cmdSender.hasPermission("walls.op")) return false;
+			if (!cmdSender.hasPermission("walls.op")||!cmdSender.hasPermission("walls.mod")) return false;
 			for (Player p : Bukkit.getOnlinePlayers())
 			{
 				if (!playing.contains(p) && p!=(Player)cmdSender)
@@ -659,7 +662,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 		else if (cmd.getLabel().equalsIgnoreCase("tpall"))
 		{
-			if (!cmdSender.hasPermission("walls.op")) return false;
+			if (!cmdSender.hasPermission("walls.op")||!cmdSender.hasPermission("walls.mod")) return false;
 			for (Player p : Bukkit.getOnlinePlayers())
 			{
 				if (p!=(Player)cmdSender)
@@ -669,7 +672,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 		else if (cmd.getLabel().equalsIgnoreCase("tphere"))
 		{
-			if (!cmdSender.hasPermission("walls.op")) return false;
+			if (!cmdSender.hasPermission("walls.op")||!cmdSender.hasPermission("walls.mod")) return false;
 			if (args.length!=1) { cmdSender.sendMessage(ChatColor.RED + "Invalid arguments"); return true; }
 			Player pl = Bukkit.getPlayer(args[0]);
 			if (pl!=null && pl.isOnline())
@@ -1579,13 +1582,29 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		}
 		e.setMotd(message);
 	}
-	@EventHandler
-	public void onWeather(WeatherChangeEvent e)
-	{
-        if (e.getWorld().hasStorm()) {
-            e.getWorld().setStorm(false);
+    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
+    public void onWeatherChange( WeatherChangeEvent event )
+    {
+        if( event.toWeatherState( ) )
+        {
+            event.setCancelled( true );
         }
-	}
+    }
+
+    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
+    public void onThunderChange( ThunderChangeEvent event )
+    {
+        if( event.toThunderState( ) )
+        {
+            event.setCancelled( true );
+        }
+    }
+
+    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
+    public void onLightningStrike( LightningStrikeEvent event )
+    {
+            event.setCancelled( true );
+    }
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e)
 	{

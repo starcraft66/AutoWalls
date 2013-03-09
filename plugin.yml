@@ -134,3 +134,6 @@ permissions:
   walls.op:
     description: Operator of walls
     default: op
+  walls.mod:
+    description: Moderator of the walls
+    default: false
