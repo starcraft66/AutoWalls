@@ -116,7 +116,6 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static Thread beat;
 	public static Thread announcer;
 	public static Thread dropper;
-	public static Thread joinTimer;
 	public static boolean mapVotes;
 	public static boolean blockSneaking;
 	public static boolean disableHealing;
@@ -314,8 +313,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    beat = new Thread(new Heartbeat());
 	    beat.start();
 	    
-	    joinTimer = new Thread(new JoinTimer());
-	    joinTimer.start();
+	    Bukkit.getScheduler().scheduleSyncRepeatingTask(this,new JoinTimer(),20L,20L);
 
 		dropper = new Thread(new WallDropper());
 		dropper.start();
