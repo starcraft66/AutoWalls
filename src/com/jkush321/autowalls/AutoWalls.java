@@ -690,7 +690,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			if (TeamChat.teamChatting.contains(p)) { TeamChat.teamChatting.remove(p); p.sendMessage(ChatColor.YELLOW + "You have disabled team chatting!"); return true; }
 			return true;
 		}
-		else if (cmd.getLabel().equalsIgnoreCase("tell") || cmd.getLabel().equalsIgnoreCase("t"))
+		else if (cmd.getLabel().equalsIgnoreCase("tell"))
 		{
 			if (cmdSender instanceof Player)
 			{
@@ -704,7 +704,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
 						msg+=s+" ";
 					else first = false;
 				}
-				msg=msg.trim();
+                if (!(msg=="")) {
+				    msg=msg.trim();
+                } else {
+                    cmdSender.sendMessage(ChatColor.GRAY + "Invalid arguments... /tell [name] [message]"); return true;
+                }
 				Player who = Bukkit.getPlayer(args[0]);
 				if (playing.contains(who) && !playing.contains(p)) { p.sendMessage(ChatColor.GRAY + "You can not private message that person!"); }
 				else { p.sendMessage(ChatColor.GRAY + "[" + p.getName() + ChatColor.STRIKETHROUGH + " >" + ChatColor.RESET + who.getName() + "] "+ ChatColor.WHITE + msg); who.sendMessage(ChatColor.WHITE + "[" + p.getName() + ChatColor.STRIKETHROUGH + " >" + ChatColor.RESET + who.getName() + "] " + ChatColor.WHITE + msg); }

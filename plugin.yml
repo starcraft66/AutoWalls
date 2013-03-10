@@ -70,11 +70,7 @@ commands:
   tell:
     description: Sends a private message
     usage: /tell [Player] [Message]
-    permission: walls.player
-    permission-message: No.
-  t:
-    description: Sends a private message
-    usage: /t [Player] [Message]
+    aliases: [t]
     permission: walls.player
     permission-message: No.
   me:
