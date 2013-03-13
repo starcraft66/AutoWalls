@@ -116,6 +116,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static Thread beat;
 	public static Thread announcer;
 	public static Thread dropper;
+	public static Thread joinTimer;
 	public static boolean mapVotes;
 	public static boolean blockSneaking;
 	public static boolean disableHealing;
@@ -313,7 +314,8 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    beat = new Thread(new Heartbeat());
 	    beat.start();
 	    
-	    Bukkit.getScheduler().scheduleSyncRepeatingTask(this,new JoinTimer(),20L,20L);
+	    joinTimer = new Thread(new JoinTimer());
+	    joinTimer.start();
 
 		dropper = new Thread(new WallDropper());
 		dropper.start();
@@ -382,7 +384,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 				Player p = (Player) cmdSender;
 				boolean allowed = false;
 				if (config.getInt("votes.players." + p.getName()) >= earlyJoinPriority && !gameInProgress) { allowed = true; }
-				if (canJoin && !gameInProgress && !gameOver){ allowed = true; }
+				if (canJoin && !gameInProgress){ allowed = true; }
 				if (playing.size()<teamSize*4 && config.getInt("votes.players." + p.getName()) >= lateJoinPriority && WallDropper.time > 0) { allowed = true; }
 				if (!allowed)
 				{
@@ -688,7 +690,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			if (TeamChat.teamChatting.contains(p)) { TeamChat.teamChatting.remove(p); p.sendMessage(ChatColor.YELLOW + "You have disabled team chatting!"); return true; }
 			return true;
 		}
-		else if (cmd.getLabel().equalsIgnoreCase("tell"))
+		else if (cmd.getLabel().equalsIgnoreCase("tell") || cmd.getLabel().equalsIgnoreCase("t"))
 		{
 			if (cmdSender instanceof Player)
 			{
@@ -702,11 +704,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 						msg+=s+" ";
 					else first = false;
 				}
-                if (!(msg=="")) {
-				    msg=msg.trim();
-                } else {
-                    cmdSender.sendMessage(ChatColor.GRAY + "Invalid arguments... /tell [name] [message]"); return true;
-                }
+				msg=msg.trim();
 				Player who = Bukkit.getPlayer(args[0]);
 				if (playing.contains(who) && !playing.contains(p)) { p.sendMessage(ChatColor.GRAY + "You can not private message that person!"); }
 				else { p.sendMessage(ChatColor.GRAY + "[" + p.getName() + ChatColor.STRIKETHROUGH + " >" + ChatColor.RESET + who.getName() + "] "+ ChatColor.WHITE + msg); who.sendMessage(ChatColor.WHITE + "[" + p.getName() + ChatColor.STRIKETHROUGH + " >" + ChatColor.RESET + who.getName() + "] " + ChatColor.WHITE + msg); }
@@ -892,21 +890,8 @@ public class AutoWalls extends JavaPlugin implements Listener {
                         if (Bukkit.getPlayer(playerName).isOnline()) {
                             getConfig().set("prefix." + playerName, null);
                             saveConfig();
-                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
-                            if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName()) && config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) >= 20) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_AQUA + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE); }
-                            if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName()) && config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) >= 250) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_RED + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE); }
-
-                            if (config.getBoolean("priorities") == true)
-                            {
-                                if (config.isSet("votes.players." + Bukkit.getPlayer(playerName).getName())) { Bukkit.getPlayer(playerName).setDisplayName(ChatColor.YELLOW + "[" + config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) + "]" + ChatColor.GRAY + Bukkit.getPlayer(playerName).getDisplayName() + ChatColor.WHITE); }
-                                else Bukkit.getPlayer(playerName).setDisplayName(ChatColor.YELLOW + "[0]" + ChatColor.GRAY + Bukkit.getPlayer(playerName).getDisplayName() + ChatColor.WHITE);
-                            }
-                            if (Bukkit.getPlayer(playerName).hasPermission("walls.op")) Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + Bukkit.getPlayer(playerName).getName() + ChatColor.GRAY + ChatColor.WHITE);
+                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed" + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
                             return true;
-                        } else {
-                            getConfig().set("prefix." + playerName, null);
-                            saveConfig();
-                            cmdSender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
                         }
                     }
                     if ( Bukkit.getPlayer(playerName).hasPermission("walls.op"))  {Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED +  Bukkit.getPlayer(playerName).getName() + ChatColor.GRAY + ChatColor.WHITE);}

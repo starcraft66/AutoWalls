@@ -35,6 +35,7 @@ public class JoinTimer implements Runnable {
 		{
 			try
 			{
+				Thread.sleep(1000);
 				timeleft--;
 				
 				if (timeleft>=10 && timeleft % 10 == 0)
