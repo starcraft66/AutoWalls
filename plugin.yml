@@ -37,9 +37,10 @@ commands:
     usage: /tp playername
     permission: walls.player
     permission-message: You can't do that
-  pri:
+  priority:
     description: Gives priority
-    usage: /pri name amount
+    usage: /priority name amount
+    aliases: [pri]
     permission: walls.op
     permission-message: No.
   tpplayers:
@@ -62,9 +63,10 @@ commands:
     usage: /tphere <name>
     permission: walls.op
     permission-message: No.
-  tc:
+  teamchat:
     description: Toggles team chat
-    usage: /tc
+    usage: /teamchat
+    aliases: [tc]
     permission: walls.player
     permission-message: No.
   tell:
@@ -79,7 +81,7 @@ commands:
     permission: walls.player
     permission-message: No.
   forcestart:
-    description: Only used when nessecary
+    description: Only used when necessary
     usage: /forcestart
     permission: walls.op
     permission-message: No.
