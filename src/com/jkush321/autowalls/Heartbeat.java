@@ -44,7 +44,7 @@ public class Heartbeat implements Runnable {
 					response+=s;
 				}
 				
-				if (!response.trim().equals("Done.")) System.out.println("Abnormal: Heartbeat returned " + response);
+				if (!response.trim().equals("Done.")||!response.trim().equals("Outdated Plugin! Update at PlanetMinecraft!")) System.out.println("Abnormal: Heartbeat returned " + response);
 				
 				Thread.sleep(60000);
 				
