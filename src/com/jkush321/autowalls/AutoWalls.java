@@ -113,6 +113,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
     public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
     public static Boolean announcerState;
+    public static Boolean heartbeatState;
 	public static String announcerName;
 	public static Thread beat;
 	public static Thread announcer;
@@ -181,7 +182,8 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		config.addDefault("priorities", true);
 		config.addDefault("team-size", 4);
 		config.addDefault("next-map", 1);
-        config.addDefault("enable-annaouncer", true);
+        config.addDefault("enable-heartbeats", true);
+        config.addDefault("enable-announcer", true);
 		config.addDefault("announcer-name", "Announcer");
 		config.addDefault("announcements", "Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!");
 		config.addDefault("map-votes", true);
@@ -208,6 +210,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		config.options().copyDefaults(true);
 	    saveConfig();	    
 
+        heartbeatState = config.getBoolean("enable-heartbeats");
         announcerState = config.getBoolean("enable-announcer");
 	    announcerName = config.getString("announcer-name");
 	    mapNumber = config.getInt("next-map");
@@ -336,12 +339,14 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	    {
 	    	Announcer.messages.add(s);
 	    }
-	    
-	    announcer = new Thread(a);
-	    announcer.start();
+	        announcer = new Thread(a);
+	        announcer.start();
         }
+
+        if (heartbeatState) {
 	    beat = new Thread(new Heartbeat());
 	    beat.start();
+        }
 	    
 	    joinTimer = new Thread(new JoinTimer());
 	    joinTimer.start();
@@ -376,14 +381,16 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			useTabApi = false;
 		}
 	}
+
     @Override
     @SuppressWarnings("Deprecated")
-	public void onDisable()
-	{
+	public void onDisable() {
         if (announcerState){
 		announcer.stop();
         }
-		beat.stop();
+        if (heartbeatState) {
+            beat.stop();
+        }
 		dropper.stop();
 	}
 
