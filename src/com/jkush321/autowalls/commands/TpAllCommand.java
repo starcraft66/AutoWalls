@@ -21,23 +21,18 @@ public class TpAllCommand implements CommandExecutor {
 
         if (cmdSender instanceof Player) {
             if (cmdSender.hasPermission("walls.op") || cmdSender.hasPermission("walls.mod") || cmdSender.isOp()) {
-
-
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p != (Player) cmdSender)
                         p.teleport((Player) cmdSender);
-                    return true;
-                }
+                } cmdSender.sendMessage(ChatColor.YELLOW + "Teleported everyone to you.");
+                return true;
             } else {
 
                 cmdSender.sendMessage(ChatColor.RED + "No permission.");
                 return true;
             }
-
-            cmdSender.sendMessage(ChatColor.RED+"Teleporting players via the console is not yet implemented!");
-            return true;
-
         }
+        cmdSender.sendMessage(ChatColor.RED + "Teleporting players via the console is not yet implemented!");
         return true;
     }
 

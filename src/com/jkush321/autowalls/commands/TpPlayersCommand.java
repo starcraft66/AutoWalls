@@ -19,11 +19,11 @@ public class TpPlayersCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
         if (cmdSender instanceof Player) {
-            if (!cmdSender.hasPermission("walls.op") || !cmdSender.hasPermission("walls.mod") || !cmdSender.isOp()) {
+            if (cmdSender.hasPermission("walls.op") || cmdSender.hasPermission("walls.mod") || cmdSender.isOp()) {
                 for (Player p : plugin.playing) {
                     if (p != (Player) cmdSender)
                         p.teleport((Player) cmdSender);
-                }
+                } cmdSender.sendMessage(ChatColor.YELLOW + "Teleported all players to you.");
                 return true;
             } else {
 

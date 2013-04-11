@@ -20,11 +20,11 @@ public class TpSpecsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
         if (cmdSender instanceof Player) {
-            if (!cmdSender.hasPermission("walls.op") || !cmdSender.hasPermission("walls.mod") || !cmdSender.isOp()) {
+            if (cmdSender.hasPermission("walls.op") || cmdSender.hasPermission("walls.mod") || cmdSender.isOp()) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!plugin.playing.contains(p) && p != (Player) cmdSender)
                         p.teleport((Player) cmdSender);
-                }
+                } cmdSender.sendMessage(ChatColor.YELLOW + "Teleported all spectators to you.");
                 return true;
             } else {
                 cmdSender.sendMessage(ChatColor.RED + "No permision.");

@@ -20,7 +20,7 @@ public class TpHereCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
         if (cmdSender instanceof Player) {
-            if (!cmdSender.hasPermission("walls.op") || !cmdSender.hasPermission("walls.mod") || !cmdSender.isOp()) {
+            if (cmdSender.hasPermission("walls.op") || cmdSender.hasPermission("walls.mod") || cmdSender.isOp()) {
                 if (args.length != 1) {
                     cmdSender.sendMessage(ChatColor.RED + "Invalid arguments");
                     return true;
@@ -28,6 +28,7 @@ public class TpHereCommand implements CommandExecutor {
                 Player pl = Bukkit.getPlayer(args[0]);
                 if (pl != null && pl.isOnline()) {
                     pl.teleport((Player) cmdSender);
+                    cmdSender.sendMessage(ChatColor.YELLOW + "Teleported " + pl.getDisplayName() + " to you.");
                 } else cmdSender.sendMessage(ChatColor.RED + "Player is not online");
                 return true;
             } else {
