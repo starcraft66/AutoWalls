@@ -33,61 +33,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import com.jkush321.autowalls.commands.*;
-import org.bukkit.block.Block;
+import com.jkush321.autowalls.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.weather.LightningStrikeEvent;
-import org.bukkit.event.weather.ThunderChangeEvent;
-import org.bukkit.event.weather.WeatherChangeEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.jkush321.autowalls.kits.Kit;
 import com.jkush321.autowalls.kits.KitManager;
-import sun.usagetracker.UsageTrackerClient;
 
-public class AutoWalls extends JavaPlugin implements Listener {
+public final class AutoWalls extends JavaPlugin {
 
 	public static Plugin plugin = Bukkit.getPluginManager().getPlugin("AutoWalls");
 	public static final Logger logger = Logger.getLogger("Minecraft");
@@ -132,7 +92,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static boolean teamTeleports;
 	public static String votelink = "";
 	public static int priorityPerDollar;
-	private static Map<Player, Long> lastEvent = new ConcurrentHashMap<>();
+	public static Map<Player, Long> lastEvent = new ConcurrentHashMap<>();
 	public static int secondsBeforeTeleport;
 	public final static String version = "1.1r1";
 	public static int earlyJoinPriority, lateJoinPriority;
@@ -140,6 +100,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
 	public static boolean preventFireBeforeWallsFall;
 	public static boolean useTabApi;
 	public static ArrayList<String> dead = new ArrayList<String>();
+    private final PlayerListener PlayerListener = new PlayerListener(this);
+    private final PlayerBlockListener PlayerBlockListener = new PlayerBlockListener(this);
+    private final PlayerConnectionListener PlayerConnectionListener = new PlayerConnectionListener(this);
+    private final ServerListener ServerListener = new ServerListener(this);
+    private final WorldListener WorldListener = new WorldListener(this);
 
     @Override
 	public void onEnable()
@@ -173,8 +138,11 @@ public class AutoWalls extends JavaPlugin implements Listener {
         getCommand("tpspecs").setExecutor(new TpSpecsCommand(this));
         getCommand("yell").setExecutor(new YellCommand(this));
 
-
-		getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(PlayerBlockListener, this);
+        getServer().getPluginManager().registerEvents(PlayerConnectionListener, this);
+        getServer().getPluginManager().registerEvents(PlayerListener, this);
+        getServer().getPluginManager().registerEvents(WorldListener, this);
+        getServer().getPluginManager().registerEvents(ServerListener, this);
 		config = getConfig();
 		
 		config.addDefault("votes.players.jkush321", 500);
@@ -601,118 +569,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 			}
 		}
 	}
-	
-	@EventHandler
-	public void onLeave(PlayerQuitEvent e)
-	{
-		if (playing.contains(e.getPlayer()) && gameInProgress) e.getPlayer().setHealth(0);
-		else if (playing.contains(e.getPlayer()) && !gameInProgress) leaveTeam(e.getPlayer());
-		if (getLastEvent(e.getPlayer()) != 0) lastEvent.remove(e.getPlayer());
-		checkStats();
-		Tags.refreshPlayer(e.getPlayer());
-		Tabs.removePlayer(e.getPlayer());
-		e.setQuitMessage(ChatColor.AQUA + "- " + ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.GRAY + " has left");
-	}
-	@EventHandler
-	public void onDeath(PlayerDeathEvent e)
-	{
-		try{ 
-		if (!playing.contains(e.getEntity())) {
-			e.setDeathMessage(""); 
-			if (e.getEntity().getInventory().getSize() > 0)
-			{
-				while (e.getDrops().size()>0)
-					e.getDrops().remove(0);
-			}
-			return;
-		}
-		if (gameInProgress && playing.contains(e.getEntity()))
-		{
-			playing.remove(e.getEntity());
-			if (redTeam.contains(e.getEntity())) redTeam.remove(e.getEntity());
-			if (blueTeam.contains(e.getEntity())) blueTeam.remove(e.getEntity());
-			if (greenTeam.contains(e.getEntity())) greenTeam.remove(e.getEntity());
-			if (orangeTeam.contains(e.getEntity())) orangeTeam.remove(e.getEntity());
-			if (TeamChat.teamChatting.contains(e.getEntity())) TeamChat.teamChatting.remove(e.getEntity());
-			if (playing.size()>1)
-				e.setDeathMessage(ChatColor.YELLOW + e.getEntity().getName() + ChatColor.DARK_RED + " " + e.getDeathMessage().split(e.getEntity().getName() + " ")[1] + ChatColor.DARK_GREEN + " " + playing.size() + " Players Remain");
-			createGrave(e.getEntity().getLocation(), e.getEntity().getName());
-			checkStats();
-			Tags.refreshPlayer(e.getEntity());
-			addDeadPlayer(e.getEntity().getName());
-			Tabs.updateAll();
-		}
-		} catch (Exception ex) { ex.printStackTrace(); }
-	}
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onLogin(PlayerLoginEvent e)
-	{	
-		if (config.isSet("votes.players." + e.getPlayer().getName()) && config.getInt("votes.players." + e.getPlayer().getName()) >= 20) { e.getPlayer().setDisplayName(ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.WHITE); }
-		if (config.isSet("votes.players." + e.getPlayer().getName()) && config.getInt("votes.players." + e.getPlayer().getName()) >= 250) { e.getPlayer().setDisplayName(ChatColor.DARK_RED + e.getPlayer().getName() + ChatColor.WHITE); }
-		
-		if (config.getBoolean("priorities") == true)
-		{
-			if (config.isSet("votes.players." + e.getPlayer().getName())) { e.getPlayer().setDisplayName(ChatColor.YELLOW + "[" + config.getInt("votes.players." + e.getPlayer().getName()) + "]" + ChatColor.GRAY + e.getPlayer().getDisplayName() + ChatColor.WHITE); }
-			else e.getPlayer().setDisplayName(ChatColor.YELLOW + "[0]" + ChatColor.GRAY + e.getPlayer().getDisplayName() + ChatColor.WHITE);
-		}
-		if (e.getPlayer().hasPermission("walls.op")) e.getPlayer().setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + e.getPlayer().getName() + ChatColor.GRAY + ChatColor.WHITE);
-		if (config.isSet("prefix." + e.getPlayer().getName())) e.getPlayer().setDisplayName(        ChatColor.translateAlternateColorCodes('&', config.getString("prefix." + e.getPlayer().getName())).replace("{pri}", config.getInt("votes.players." + e.getPlayer().getName())+"") + e.getPlayer().getName() + ChatColor.WHITE);
 
-		if (Bukkit.getOnlinePlayers().length == Bukkit.getMaxPlayers())
-		{
-			if (config.isSet("votes.players." + e.getPlayer().getName()) && (config.getBoolean("priorities") || config.getInt("votes.players." + e.getPlayer().getName()) > 5))
-			{
-				int pl = config.getInt("votes.players." + e.getPlayer().getName());
-				int l = 999999;
-				Player low = null;
-				for (int i = Bukkit.getOnlinePlayers().length -  1; i > -1; i--)
-				{
-					Player p = Bukkit.getOnlinePlayers()[i];
-					if (!playing.contains(p))
-					{
-						if (!config.isSet("votes.players." + p.getName()))
-						{
-							p.kickPlayer(priorityKickMessage);
-							if (!e.getPlayer().isBanned()) 
-								if ((Bukkit.hasWhitelist() && e.getPlayer().isWhitelisted()) || !Bukkit.hasWhitelist())
-									e.allow();
-							return;
-						}
-						if (config.getInt("votes.players." + p.getName()) < l)
-						{
-							low = p;
-							l = config.getInt("votes.players." + p.getName());
-						}
-					}
-				}
-				if (pl > l) { low.kickPlayer("Someone with higher priority joined!"); /*e.allow();*/ return; }
-				
-			}
-			e.disallow(Result.KICK_FULL, fullKickMessage);
-		}
-				
-		e.getPlayer().getInventory().clear();
-		e.getPlayer().getInventory().setArmorContents(new ItemStack[]{new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
-		
-	}
-	@EventHandler
-	public void onJoin(PlayerJoinEvent e)
-	{
-		e.setJoinMessage(ChatColor.AQUA + "+ " + ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.GRAY + " is now online");
-		if (gameInProgress) {
-			spectate(e.getPlayer());
-			for (Player p : playing)
-			{
-				p.hidePlayer(e.getPlayer());
-			}
-		}
-        e.getPlayer().setGameMode(GameMode.ADVENTURE);
-		if (e.getPlayer().hasPermission("walls.op"))
-		{
-			UpdateChecker.checkAndSendMessage(e.getPlayer());
-		}
-		Tabs.addPlayer(e.getPlayer());
-	}
 	public void checkStats()
 	{
 		if (!gameInProgress) return;
@@ -765,381 +622,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		p.sendMessage(ChatColor.YELLOW + "You can enable flying with /fly");
 		p.setGameMode(GameMode.ADVENTURE);
 	}
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent e)
-	{
-        Player p = e.getPlayer();
-		if (e.getPlayer().hasPermission("walls.op")) return;
-		if (!playing.contains(e.getPlayer())) e.setCancelled(true);
-		if (!gameInProgress) e.setCancelled(true);
-		if (mapNumber==1)
-		{
-			if (e.getBlock().getX()==347) e.setCancelled(true);
-			if (e.getBlock().getZ()==-793) e.setCancelled(true);
-			if (e.getBlock().getX()>408) e.setCancelled(true);
-			if (e.getBlock().getZ()<-853) e.setCancelled(true);
-			if (e.getBlock().getX()<286) e.setCancelled(true);
-			if (e.getBlock().getZ()>-731) e.setCancelled(true);
-			if (e.getBlock().getY() > 137) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
-		}
-		else if (mapNumber ==2)
-		{
-			if (e.getBlock().getZ()==-182) e.setCancelled(true);
-			if (e.getBlock().getZ()==-164) e.setCancelled(true);
-			if (e.getBlock().getX()==-785) e.setCancelled(true);
-			if (e.getBlock().getX()==-803) e.setCancelled(true);
-			if (e.getBlock().getZ()>-103) e.setCancelled(true);
-			if (e.getBlock().getX()<-863) e.setCancelled(true);
-			if (e.getBlock().getX()>-725) e.setCancelled(true);
-			if (e.getBlock().getZ()<-243) e.setCancelled(true);
-			if (e.getBlock().getY() > 95) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
-		}
-		if (e.getBlock() instanceof Sign)
-		{
-			if (graves.contains((Sign) e.getBlock()))
-			{
-				e.setCancelled(true);
-				e.getPlayer().sendMessage(ChatColor.AQUA + "You can not touch this grave!");
-			}
-		}
-    }
-	@EventHandler
-	public void onBlockPlace(BlockPlaceEvent e)
-	{
-		if (e.getPlayer().hasPermission("walls.op")) return;
-		if (!playing.contains(e.getPlayer())) e.setCancelled(true);
-		if (!gameInProgress) e.setCancelled(true);
-		if (mapNumber==1)
-		{
-			if (e.getBlock().getX()==347) e.setCancelled(true);
-			if (e.getBlock().getZ()==-793) e.setCancelled(true);
-			if (e.getBlock().getX()>408) e.setCancelled(true);
-			if (e.getBlock().getZ()<-853) e.setCancelled(true);
-			if (e.getBlock().getX()<286) e.setCancelled(true);
-			if (e.getBlock().getZ()>-731) e.setCancelled(true);
-			if (e.getBlock().getY() > 138) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
-		}
-		else if (mapNumber ==2)
-		{
-			if (e.getBlock().getZ()==-182) e.setCancelled(true);
-			if (e.getBlock().getZ()==-164) e.setCancelled(true);
-			if (e.getBlock().getX()==-785) e.setCancelled(true);
-			if (e.getBlock().getX()==-803) e.setCancelled(true);
-			if (e.getBlock().getZ()>-103) e.setCancelled(true);
-			if (e.getBlock().getX()<-863) e.setCancelled(true);
-			if (e.getBlock().getX()>-725) e.setCancelled(true);
-			if (e.getBlock().getZ()<-243) e.setCancelled(true);
-			if (e.getBlock().getY() > 94) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
-		}
-	}
-	@EventHandler
-	public void onRespawn(PlayerRespawnEvent e)
-	{
-		if (gameInProgress) spectate(e.getPlayer());
-	}
 
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onChat(AsyncPlayerChatEvent e)
-	{
-		setLastEventToNow(e.getPlayer());
-		if (WallDropper.timeContinued < 0 && WallDropper.timeContinued >= -30 && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
-		{
-			e.setCancelled(true);
-			e.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Please do not send messages about lag while the walls are falling ;)");
-		}
-		else if (voting)
-		{
-			if (e.getMessage().trim().length() == 1)
-			{
-				if (e.getMessage().trim().equals("1"))
-				{
-					if (votedFor1.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "You have already voted for that map!"); e.setCancelled(true); return; }
-					if (votedFor2.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "Your vote for map 2 has been deleted!"); votedFor2.remove(e.getPlayer()); }
-					votedFor1.add(e.getPlayer());
-					e.getPlayer().sendMessage(ChatColor.GRAY + "You have successfully voted for map 1!");
-					e.setCancelled(true);
-				}
-				else if (e.getMessage().trim().equals("2"))
-				{
-					if (votedFor2.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "You have already voted for that map!"); e.setCancelled(true); return; }
-					if (votedFor1.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "Your vote for map 1 has been deleted!"); votedFor1.remove(e.getPlayer()); }
-					votedFor2.add(e.getPlayer());
-					e.getPlayer().sendMessage(ChatColor.GRAY + "You have successfully voted for map 2!");
-					e.setCancelled(true);
-				}
-				else e.getPlayer().sendMessage(ChatColor.GRAY + "Invalid input, type a 1 or a 2.");
-			}
-		}
-		
-		if (!e.isCancelled())
-		{
-			e.setMessage(e.getPlayer().getDisplayName() + ": " + e.getMessage());
-			e.setCancelled(TeamChat.say(e.getPlayer(), e.getMessage()));
-		}
-	}
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onDamage(EntityDamageByEntityEvent e)
-	{
-		if (e.isCancelled()) return;		
-		
-		//no spectators hitting animals
-		if (!(e.getEntity() instanceof Player)) { if (e.getDamager() instanceof Player) { if (!playing.contains((Player) e.getDamager())) e.setCancelled(true); return; } } 
-		
-		//no arrows shot at spectators
-		if (e.getEntity() instanceof Player) { if (!playing.contains((Player) e.getEntity()) && e.getDamager().getType().equals(EntityType.ARROW)) { e.setCancelled(true); return; } }
-		
-		if (e.getDamager().getType().equals(EntityType.ARROW) && e.getEntity() instanceof Player)
-		{
-			if (playing.contains((Player) e.getEntity()))
-			{
-				Arrow arrow = (Arrow) e.getDamager();
-				if (arrow.getShooter() instanceof Player)
-				{
-					Player d = (Player) arrow.getShooter();
-					if (redTeam.contains((Player)e.getEntity()) && redTeam.contains(d)) { d.sendMessage(ChatColor.RED + "You can not team kill!"); e.setCancelled(true); return; }
-					if (blueTeam.contains((Player)e.getEntity()) && blueTeam.contains(d)) { d.sendMessage(ChatColor.RED + "You can not team kill!"); e.setCancelled(true); return; }
-					if (greenTeam.contains((Player)e.getEntity()) && greenTeam.contains(d)) { d.sendMessage(ChatColor.RED + "You can not team kill!"); e.setCancelled(true); return; }
-					if (orangeTeam.contains((Player)e.getEntity()) && orangeTeam.contains(d)) { d.sendMessage(ChatColor.RED + "You can not team kill!"); e.setCancelled(true); return; }
-				}
-			}
-		}
-		if (!(e.getDamager() instanceof Player)) return;
-		if (!(e.getEntity() instanceof Player)) return;
-		
-		Player p = (Player) e.getEntity();
-		Player damager = (Player) e.getDamager();
-		
-		setLastEventToNow(p);
-		
-		if (!playing.contains(p) && playing.contains(damager)) { damager.sendMessage(ChatColor.RED + "There is a spectator there, don't hurt it"); e.setCancelled(true); return; } 
-		if (!playing.contains(damager) && playing.contains(p)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Are Not In This Fight!"); return; }
-		
-		if (!playing.contains(p) && !playing.contains(damager))
-		{
-			/*if (p.getLocation().getBlockX() <= 357 && p.getLocation().getBlockX() >= 337 && p.getLocation().getBlockZ() >= -804 && p.getLocation().getBlockZ() <= -782 && p.getLocation().getBlockY() >= 152 && p.getLocation().getBlockY() <= 155)
-			{
-				if (damager.getLocation().getBlockX() <= 357 && damager.getLocation().getBlockX() >= 337 && damager.getLocation().getBlockZ() >= -804 && damager.getLocation().getBlockZ() <= -782 && damager.getLocation().getBlockY() >= 152 && damager.getLocation().getBlockY() <= 155)
-				{
-					return;
-				}
-			}*/
-			e.setCancelled(true); //damager.sendMessage("�cIf you want to fight do it in the area above spawn");
-		}
-		
-		if (redTeam.contains(p) && redTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
-		if (blueTeam.contains(p) && blueTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
-		if (greenTeam.contains(p) && greenTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
-		if (orangeTeam.contains(p) && orangeTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
-		if (WallDropper.time > 0 && playing.contains(p) && playing.contains(damager)) { damager.sendMessage(ChatColor.RED + "The walls haven't dropped yet! Why are you hitting " + p.getName() + "?"); e.setCancelled(true); return; }
-	}
-	@EventHandler
-	public void onDroppedItem(PlayerDropItemEvent e)
-	{
-		setLastEventToNow(e.getPlayer());
-		if (!playing.contains(e.getPlayer()) && !e.getPlayer().hasPermission("walls.op")) e.setCancelled(true);
-	}
-	@EventHandler 
-	public void onPickUp(PlayerPickupItemEvent e)
-	{
-		if (!playing.contains(e.getPlayer())) e.setCancelled(true);
-	}
-	@EventHandler (priority = EventPriority.HIGHEST)
-	public void onInteract(PlayerInteractEvent e)
-	{
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
-		{
-			if (e.getClickedBlock().getType() == Material.SIGN || e.getClickedBlock().getType() == Material.SIGN_POST)
-			{
-				Sign s = (Sign) e.getClickedBlock().getState();
-				SignUI.onClick(e.getPlayer(), s.getLine(0), s.getLine(1), s.getLine(2), s.getLine(3));
-			}
-		}
-		if (playing.contains(e.getPlayer()) && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK))
-		{
-			if (e.getPlayer().getItemInHand() != null)
-			{
-				if (e.getPlayer().getItemInHand().getType() == Material.NETHER_STAR)
-				{
-					if (ColorCycler.colorTime.containsKey(e.getPlayer()))
-					{
-						if (ColorCycler.colorTime.get(e.getPlayer()) == 0)
-						{
-							e.getPlayer().sendMessage(ChatColor.RED + "Your ability to do that has worn off!");
-						}
-						else
-						{
-							ColorCycler.cycle(e.getPlayer());
-						}
-					}
-					else
-					{
-						ColorCycler.cycle(e.getPlayer());
-					}
-				}
-				else if (e.getPlayer().getItemInHand().getType() == Material.SNOW_BALL)
-				{
-					if (e.getPlayer().getItemInHand().getItemMeta().hasDisplayName())
-					{
-						if (e.getPlayer().getItemInHand().getItemMeta().getDisplayName().contains("Basic"))
-						{
-							e.getPlayer().setMetadata("last-grenade", new FixedMetadataValue(this, "basic"));
-							System.out.println("Meep");
-						}
-					}
-					else
-					{
-						if (e.getPlayer().hasMetadata("last-grenade")) e.getPlayer().removeMetadata("last-grenade", this);
-					}
-				}
-				else if (e.getPlayer().getItemInHand().getType() == Material.ENDER_PEARL && WallDropper.time > 0)
-				{
-					e.getPlayer().sendMessage(ChatColor.RED + "You can not do that until the walls fall!");
-					e.setCancelled(true);
-				}
-			}
-		}
-		if (e.getPlayer().hasPermission("walls.op")) { e.setCancelled(false); return; }
-		if ((e.getPlayer().getLocation().getBlockY() > 139 && mapNumber == 1) || (e.getPlayer().getLocation().getBlockY() > 125 && mapNumber == 2))
-		{
-			e.setCancelled(false);
-			return;
-		}
-		else
-		{
-			if (playing.contains(e.getPlayer()))
-			{
-				setLastEventToNow(e.getPlayer());
-				if ((e.getPlayer().getItemInHand() != null && e.getAction() == Action.RIGHT_CLICK_BLOCK) || e.getAction() == Action.LEFT_CLICK_BLOCK)
-				{
-					if (e.getPlayer().getItemInHand().getType() != Material.AIR)
-					{
-						for (Player p : Bukkit.getOnlinePlayers())
-						{
-							if (!playing.contains(p))
-							{
-								if (p.getLocation().distance(e.getClickedBlock().getLocation()) <= 2)
-								{
-									p.teleport(p.getLocation().add(new Location(p.getWorld(), 0, 2, 0)));
-									p.sendMessage(ChatColor.YELLOW + "You have been moved over to allow " + e.getPlayer().getName() + " to place a block");
-								}
-							}
-						}
-					}
-					if (e.getPlayer().getItemInHand().getType() != Material.FLINT_AND_STEEL && e.getPlayer().getItemInHand().getType() == Material.FIREBALL && WallDropper.time > 0 && preventFireBeforeWallsFall)
-					{
-						e.getPlayer().sendMessage(ChatColor.DARK_RED + "You can't place fire until the walls have fallen!");
-						e.setCancelled(true);
-					}
-				}
-			}
-		}
-		if (!gameInProgress) e.setCancelled(true);
-		if (!playing.contains(e.getPlayer())) {e.setCancelled(true);}
-	}
-	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onEntitySpawn(CreatureSpawnEvent e)
-	{
-		if (e.getEntity().getType().equals(EntityType.CREEPER) || e.getEntity().getType().equals(EntityType.ENDERMAN) || e.getEntity().getType().equals(EntityType.SLIME) || e.getEntity().getType().equals(EntityType.SKELETON) || e.getEntity().getType().equals(EntityType.SPIDER) || e.getEntity().getType().equals(EntityType.ZOMBIE)) e.setCancelled(true);
-	}
-	@EventHandler
-	public void onPing(ServerListPingEvent e)
-	{
-		String message = "AutoWalls Server";
-		if (!gameInProgress && !gameOver)
-		{
-			message=(ChatColor.DARK_GREEN + "Getting ready to start!");
-		}
-		else if (gameInProgress && WallDropper.time > 0)
-		{
-			int mins = WallDropper.time / 60;
-			int secs = WallDropper.time % 60;
-			message=(ChatColor.DARK_GREEN + "Walls drop in "+ ChatColor.YELLOW + mins + ChatColor.DARK_RED + " mins, " + ChatColor.YELLOW + secs + ChatColor.DARK_RED + " secs!");
-		}
-		else if (gameInProgress)
-		{
-			message=(ChatColor.YELLOW + "" + playing.size() + ChatColor.DARK_RED + " players alive!");
-		}
-		else if (gameOver && !voting)
-		{
-			message=ChatColor.DARK_GREEN + "Game has ended!";
-		}
-		else {
-			message=ChatColor.DARK_AQUA + "Voting for the next map!";
-		}
-		e.setMotd(message);
-	}
-    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
-    public void onWeatherChange( WeatherChangeEvent event )
-    {
-        if( event.toWeatherState( ) )
-        {
-            event.setCancelled( true );
-        }
-    }
-
-    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
-    public void onThunderChange( ThunderChangeEvent event )
-    {
-        if( event.toThunderState( ) )
-        {
-            event.setCancelled( true );
-        }
-    }
-
-    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
-    public void onLightningStrike( LightningStrikeEvent event )
-    {
-            event.setCancelled( true );
-    }
-	@EventHandler
-	public void onSneak(PlayerToggleSneakEvent e)
-	{
-		if (playing.contains(e.getPlayer()) && WallDropper.time<=0 && blockSneaking)
-			if (e.isSneaking()==true) e.setCancelled(true);
-	}
-	@EventHandler
-	public void onEat(EntityRegainHealthEvent e)
-	{
-		if (e.getEntity() instanceof Player)
-		{
-			if (playing.contains((Player) e.getEntity()) && disableHealing && WallDropper.time<=0) { 
-				Random r = new Random();
-				e.setAmount(r.nextInt( (20 - ((Player)e.getEntity()).getHealth()) / 2 )); 
-			} 
-		}
-	}
-	@EventHandler
-	public void onProjectileLand(ProjectileHitEvent e)
-	{
-		if (e.getEntityType() == EntityType.ARROW && arrowLightning)
-		{
-			if (e.getEntity().getShooter() != null)
-			{
-				if (e.getEntity().getShooter() instanceof Player)
-				{
-					Player shooter = (Player) e.getEntity().getShooter();
-					if (WallDropper.time <= 0)
-					{
-						Random r = new Random();
-						int rand = r.nextInt(arrowLightningChance);
-						if (rand==0)
-						{
-							Bukkit.broadcastMessage(ChatColor.DARK_RED + shooter.getName() + ChatColor.RED + " Has Shot A Rare Lightning Arrow!");
-							e.getEntity().getWorld().strikeLightning(e.getEntity().getLocation());
-						}
-					}
-				}
-			}
-		}
-		else if (e.getEntity().getType() == EntityType.SNOWBALL)
-		{
-			if (e.getEntity().hasMetadata("grenade-type"))
-			{
-				Grenades.handleLanding(e, e.getEntity());
-			}
-			//e.getEntity().getWorld().createExplosion(e.getEntity().getLocation(), .8F, true);
-		}
-	}
 	public void createGrave(Location l, String playername)
 	{
 		Random r = new Random();
@@ -1153,48 +636,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		s.update();
 		graves.add(s);
 	}
-	@EventHandler
-	public void onPistonRetract (BlockPistonRetractEvent e)
-	{
-		if (e.getRetractLocation().getBlock().getType() == Material.SAND || e.getRetractLocation().getBlock().getType() == Material.GRAVEL) e.setCancelled(true);
-	}
-	@EventHandler
-	public void onPistonExtend (BlockPistonExtendEvent e)
-	{
-		for (Block b : e.getBlocks())
-		{
-			if (b.getType()==Material.SAND || b.getType()==Material.GRAVEL) e.setCancelled(true);
-		}
-	}
-	@EventHandler
-	public void onExplode (EntityExplodeEvent e)
-	{
-		List<Block> newList = new ArrayList<Block>();
-		newList.addAll(e.blockList());
-		
-		for (Block b : newList)
-		{
-			if (b.getType() == Material.SAND || b.getType() == Material.GRAVEL) { e.blockList().remove(b); }
-		}
-	}
-	@EventHandler
-	public void onTp (PlayerTeleportEvent e)
-	{
-		for (Player p : Bukkit.getOnlinePlayers())
-		{
-			for (Player p2 : playing)
-			{
-				if (p!=p2 && !playing.contains(p))
-				{
-					p2.hidePlayer(p);
-				}
-				else if (p!=p2 && playing.contains(p))
-				{
-					p2.showPlayer(p);
-				}
-			}
-		}
-	}
+
 	public static void setLastEvent(Player p, long millis)
 	{
 		if (lastEvent.containsKey(p)) lastEvent.remove(p);
@@ -1215,76 +657,7 @@ public class AutoWalls extends JavaPlugin implements Listener {
 		if (lastEvent.containsKey(p)) return (int)Math.floor((double)((System.currentTimeMillis() - lastEvent.get(p)) / 50));
 		return Integer.MAX_VALUE;
 	}
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e)
-	{
-		setLastEventToNow(e.getPlayer());
 
-        Player p = e.getPlayer();
-
-        //FINALLY! Prevent pretty much all forms of cheating by not allowing players to leave their quadrants.
-
-        if (gameInProgress) {
-            if (WallDropper.time > 0) {
-                //Game must be in progress
-                if (playing.contains(p)) {
-                    //Only affect players
-                    if(redTeam.contains(p)) {
-                            if (e.getTo().getX() > redQuadrant[0] || e.getTo().getX() < redQuadrant[1] || e.getTo().getZ() > redQuadrant[2] || e.getTo().getZ() < redQuadrant[3]) {
-                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
-                            }
-
-                    }
-                    else if (blueTeam.contains(p)) {
-                            if (e.getTo().getX() > blueQuadrant[0] || e.getTo().getX() <  blueQuadrant[1] || e.getTo().getZ() > blueQuadrant[2] || e.getTo().getZ() < blueQuadrant[3]) {
-                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
-                            }
-
-                    }
-                    else if (greenTeam.contains(p)) {
-                            if (e.getTo().getX() > greenQuadrant[0] || e.getTo().getX() < greenQuadrant[1] || e.getTo().getZ() > greenQuadrant[2] || e.getTo().getZ() < greenQuadrant[3]) {
-                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
-                            }
-
-                    }
-                    else if (orangeTeam.contains(p)) {
-
-                            if (e.getTo().getX() > orangeQuadrant[0] || e.getTo().getX() < orangeQuadrant[1] || e.getTo().getZ() > orangeQuadrant[2] || e.getTo().getZ() < orangeQuadrant[3]) {
-                                p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                                p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
-                            }
-
-                    }
-                }
-            }
-        }
-	}
-
-	@EventHandler
-	public void onSignUpdate(SignChangeEvent e)
-	{
-		if (ChatColor.stripColor(e.getLine(0).trim()).equalsIgnoreCase("[Join]") && !e.getPlayer().hasPermission("walls.op"))
-		{
-			e.setCancelled(true);
-			e.getPlayer().sendMessage(ChatColor.RED + "No placing special signs!");
-		}
-		if (ChatColor.stripColor(e.getLine(0).trim()).equalsIgnoreCase("[Kit]") && !e.getPlayer().hasPermission("walls.op"))
-		{
-			e.setCancelled(true);
-			e.getPlayer().sendMessage(ChatColor.RED + "No placing special signs!");
-		}
-	}
-	@EventHandler
-	public void onProjLaunch(ProjectileLaunchEvent e)
-	{
-		if (e.getEntity().getShooter().hasMetadata("last-grenade"))
-		{
-			e.getEntity().setMetadata("grenade-type", new FixedMetadataValue(this, e.getEntity().getShooter().getMetadata("last-grenade").get(0).asString()));
-		}
-	}
 	public static void addDeadPlayer(String name)
 	{
 		if (!dead.contains(name)) dead.add(name);
