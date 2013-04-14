@@ -19,18 +19,20 @@ public class YellCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
-        if (plugin.config.getInt("votes.players." + cmdSender.getName()) >= 20 || !(cmdSender instanceof Player) || cmdSender.hasPermission("walls.op"))
-        {
-            String message = "";
-            for (String s : args)
+        if (cmdSender instanceof Player) {
+            if (plugin.config.getInt("votes.players." + cmdSender.getName()) >= 20 || cmdSender.hasPermission("walls.op"))
             {
-                message+=s + " ";
-            }
-            message=message.trim();
-            if (args.length != 0) { Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[Yell] " + ChatColor.AQUA + cmdSender.getName() + ": " + ChatColor.WHITE + message); }
-            else cmdSender.sendMessage(ChatColor.AQUA + "Usage : /yell [message]");
-        }
-        else cmdSender.sendMessage(ChatColor.AQUA + "You need at least 20 priority to do that.");
+                String message = "";
+                for (String s : args) {
+                    message += s + " ";
+                }
+                message = message.trim();
+                if (args.length != 0) {
+                    Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[Yell] " + ChatColor.AQUA + cmdSender.getName() + ": " + ChatColor.WHITE + message);
+                } else cmdSender.sendMessage(ChatColor.AQUA + "Usage : /yell [message]");
+            } else cmdSender.sendMessage(ChatColor.AQUA + "You need at least 20 priority to do that.");
+            return true;
+        } cmdSender.sendMessage(ChatColor.RED + "The console cannot yell!");
         return true;
     }
 }
