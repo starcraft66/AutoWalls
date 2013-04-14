@@ -19,7 +19,7 @@ public class YellCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
-        if (plugin.config.getInt("votes.players." + cmdSender.getName()) >= 20 || !(cmdSender instanceof Player) || cmdSender.hasPermission("walls.op"))
+        if (plugin.config.getInt("votes.players." + cmdSender.getName()) >= 20 || (cmdSender instanceof Player) || cmdSender.hasPermission("walls.op"))
         {
             String message = "";
             for (String s : args)
