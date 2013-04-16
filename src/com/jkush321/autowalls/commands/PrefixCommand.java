@@ -19,7 +19,7 @@ public class PrefixCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
         if (args.length < 2) {
-            cmdSender.sendMessage(ChatColor.RED + "Usage : /pri <set | remove> <name> <amount>");
+            cmdSender.sendMessage(ChatColor.RED + "Usage : /prefix <set | remove> <name> <amount>");
             return true;
         } else {
 
