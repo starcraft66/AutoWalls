@@ -18,7 +18,6 @@ public class PlayingCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
-        Player p = (Player) cmdSender;
         cmdSender.sendMessage(ChatColor.GRAY + "There are " + plugin.playing.size() + " people playing");
         String s = (ChatColor.GRAY + "Red: " + ChatColor.WHITE);
         for (Player pl : plugin.redTeam)
