@@ -52,6 +52,7 @@ public class TpCommand implements CommandExecutor {
                     }
                 } else p.sendMessage(ChatColor.GRAY + "That player is not online!");
             } else if (args.length == 4) {
+                if (cmdSender.isOp() ||cmdSender.hasPermission("walls.op") || cmdSender.hasPermission("walls.mod")) {
                 Player p = Bukkit.getPlayer(args[0]);
                 if (p.isOnline() && p != null) {
                     double x, y, z;
@@ -65,7 +66,10 @@ public class TpCommand implements CommandExecutor {
                     }
                     p.teleport(new Location(p.getWorld(), x, y, z));
                 } else
-                    cmdSender.sendMessage(ChatColor.DARK_RED + "Player not found.");
+                    cmdSender.sendMessage(ChatColor.DARK_RED + "Player not found."); } else {
+                    cmdSender.sendMessage(ChatColor.RED + "No Permission.");
+                    return true;
+                }
             } else cmdSender.sendMessage("Invalid Arguments. /tp playername");
             return true;
         }
