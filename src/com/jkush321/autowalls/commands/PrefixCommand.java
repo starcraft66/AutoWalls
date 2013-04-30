@@ -20,7 +20,7 @@ public class PrefixCommand implements CommandExecutor {
 
         if (args.length < 2) {
             cmdSender.sendMessage(ChatColor.RED + "Usage : /prefix <set | remove> <name> <amount>");
-            return true;
+            return false;
         } else {
 
             String playerName = "";
@@ -66,10 +66,11 @@ public class PrefixCommand implements CommandExecutor {
                     Bukkit.getPlayer(playerName).setDisplayName(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("prefix." + Bukkit.getPlayer(playerName).getName())).replace("{pri}", plugin.config.getInt("votes.players." + Bukkit.getPlayer(playerName).getName()) + "") + Bukkit.getPlayer(playerName).getName() + ChatColor.WHITE);
                     return true;
                 }
+                //impossible
                 return true;
             }
             cmdSender.sendMessage(ChatColor.RED + "Usage : /prefix <set | remove> <name> <prefix>");
-            return true;
+            return false;
         }
     }
 }

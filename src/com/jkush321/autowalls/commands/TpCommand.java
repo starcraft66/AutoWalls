@@ -62,7 +62,7 @@ public class TpCommand implements CommandExecutor {
                         z = Double.parseDouble(args[3]);
                     } catch (Exception e) {
                         cmdSender.sendMessage(ChatColor.DARK_RED + "Invalid coordinates");
-                        return true;
+                        return false;
                     }
                     p.teleport(new Location(p.getWorld(), x, y, z));
                 } else
@@ -71,7 +71,7 @@ public class TpCommand implements CommandExecutor {
                     return true;
                 }
             } else cmdSender.sendMessage("Invalid Arguments. /tp playername");
-            return true;
+            return false;
         }
         cmdSender.sendMessage(ChatColor.RED + "Teleporting players via the console is not yet implemented!");
         return true;

@@ -32,7 +32,7 @@ public class ForceStartCommand implements CommandExecutor {
 
         }
         cmdSender.sendMessage(ChatColor.RED + "No permission!");
-        return true;
+        return false;
     }
 
 }

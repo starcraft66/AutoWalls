@@ -20,11 +20,11 @@ public class FlyCommand implements CommandExecutor {
 
         if (!plugin.gameInProgress) {
             cmdSender.sendMessage(ChatColor.RED + "The game did not start yet, there is no reason to fly.");
-            return true;
+            return false;
         }
         if (plugin.playing.contains((Player) cmdSender)) {
             cmdSender.sendMessage(ChatColor.RED + "You are in game!");
-            return true;
+            return false;
         }
         ((Player) cmdSender).setAllowFlight(true);
         cmdSender.sendMessage(ChatColor.YELLOW + "You are now able to fly!");

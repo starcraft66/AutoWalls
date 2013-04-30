@@ -21,12 +21,12 @@ public class PriorityCommand implements CommandExecutor {
 
         if (args.length != 2 && args.length != 3) {
             cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> <amount>");
-            return true;
+            return false;
         }
 
         if (!cmdSender.hasPermission("walls.op") || !cmdSender.hasPermission("walls.pri")) {
             cmdSender.sendMessage(ChatColor.RED + "No permission!");
-            return true;
+            return false;
         }
 
         int a = Integer.parseInt(args[1]);

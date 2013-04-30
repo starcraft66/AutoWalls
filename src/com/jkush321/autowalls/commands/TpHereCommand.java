@@ -33,7 +33,7 @@ public class TpHereCommand implements CommandExecutor {
                 return true;
             } else {
                 cmdSender.sendMessage(ChatColor.RED + "No permission.");
-                return true;
+                return false;
 
             }
         }

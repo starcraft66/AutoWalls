@@ -23,6 +23,6 @@ public class NightCommand implements CommandExecutor {
             return true;
         }
         cmdSender.sendMessage(ChatColor.RED + "No permission!");
-        return true;
+        return false;
     }
 }

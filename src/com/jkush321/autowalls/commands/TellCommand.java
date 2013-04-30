@@ -22,7 +22,7 @@ public class TellCommand implements CommandExecutor {
         if (cmdSender instanceof Player)
         {
             Player p = (Player) cmdSender;
-            if (args.length < 2) { cmdSender.sendMessage(ChatColor.RED + "Usage : /tell [name] [message]"); return true; }
+            if (args.length < 2) { cmdSender.sendMessage(ChatColor.RED + "Usage : /tell [name] [message]"); return false; }
             String msg="";
             boolean first = true;
             for (String s : args)
@@ -39,7 +39,7 @@ public class TellCommand implements CommandExecutor {
         }
         else
         {
-            if (args.length < 2) { cmdSender.sendMessage(ChatColor.GRAY + "Usage : /tell [name] [message]"); return true; }
+            if (args.length < 2) { cmdSender.sendMessage(ChatColor.GRAY + "Usage : /tell [name] [message]"); return false; }
             String msg="";
             boolean first = true;
             for (String s : args)

@@ -22,7 +22,7 @@ public class MeCommand implements CommandExecutor {
         if (cmdSender instanceof Player) {
             if (args.length == 0) {
                 cmdSender.sendMessage(ChatColor.GRAY + "Invalid arguments... /me [message]");
-                return true;
+                return false;
             }
             Player p = (Player) cmdSender;
             String msg = "";
@@ -34,6 +34,6 @@ public class MeCommand implements CommandExecutor {
             return true;
         }
         cmdSender.sendMessage(ChatColor.RED + "Last time I checked, consoles couldn't emote!");
-        return true;
+        return false;
     }
 }

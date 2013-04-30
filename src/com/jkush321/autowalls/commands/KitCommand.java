@@ -33,15 +33,19 @@ public class KitCommand implements CommandExecutor {
                         if (k.getRequiredPriority() <= p) {
                             KitManager.setKit((Player) cmdSender, k);
                             cmdSender.sendMessage(ChatColor.DARK_AQUA + "Selected kit " + k.getName());
+                            return true;
                         } else {
-                            cmdSender
-                                    .sendMessage(ChatColor.DARK_RED + "That kit is not available to you! You can get " + plugin.priorityPerDollar + " priority for every $1 donated");
+                            cmdSender.sendMessage(ChatColor.DARK_RED + "That kit is not available to you! You can get " + plugin.priorityPerDollar + " priority for every $1 donated");
+                            return true;
                         }
                     } else {
                         cmdSender.sendMessage(ChatColor.DARK_RED + "That kit was not found.");
+                        return true;
                     }
-                } else
+                } else {
                     cmdSender.sendMessage(ChatColor.DARK_RED + "It is too late to choose a kit!");
+                    return true;
+                }
             } else if (args.length == 0) {
                 int p = 0;
                 if (plugin.config.isSet("votes.players." + cmdSender.getName())) {
@@ -62,12 +66,13 @@ public class KitCommand implements CommandExecutor {
                 cmdSender.sendMessage(m1);
                 cmdSender.sendMessage(m2);
                 cmdSender.sendMessage(ChatColor.DARK_AQUA + "To unlock the unavaible kits you can donate for priority. You get " + plugin.priorityPerDollar + " priority for $1");
+                return true;
             } else {
                 cmdSender.sendMessage(ChatColor.DARK_RED + "/kit [name]");
+                return false;
             }
-            return true;
         }
         cmdSender.sendMessage(ChatColor.RED + "The console can not choose a kit!");
-        return true;
+        return false;
     }
 }

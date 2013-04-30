@@ -35,9 +35,10 @@ public class TeamChatCommand implements CommandExecutor {
                 cmdSender.sendMessage(ChatColor.YELLOW + "You have disabled team chatting!");
                 return true;
             }
-            return true;
+            //impossible
+            return false;
         }
         cmdSender.sendMessage(ChatColor.RED + "The console is not in a team and cannot team chat!");
-        return true;
+        return false;
     }
 }

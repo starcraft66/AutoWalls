@@ -28,6 +28,6 @@ public class LeaveCommand implements CommandExecutor {
             }
             else cmdSender.sendMessage(ChatColor.DARK_RED + "You aren't on a team");
         }
-        return true;
+        return false;
     }
 }

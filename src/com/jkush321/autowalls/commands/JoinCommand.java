@@ -54,11 +54,11 @@ public class JoinCommand implements CommandExecutor {
                     plugin.joinTeam(p,"green");
                 else if (args[0].equalsIgnoreCase("orange"))
                     plugin.joinTeam(p,"orange");
-                else p.sendMessage(ChatColor.DARK_RED + "The Team " + args[0] + " Is Invalid!");
+                else p.sendMessage(ChatColor.DARK_RED + "The Team " + args[0] + " is Invalid!");
             }
             else p.sendMessage(ChatColor.RED + "Too Many Arguments. /join <red|blue|green|orange>");
         }
         else cmdSender.sendMessage("You can't join a team, console :P");
-        return true;
+        return false;
     }
 }

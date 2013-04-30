@@ -53,6 +53,6 @@ public class TeamCommand implements CommandExecutor {
             }
         }
         cmdSender.sendMessage(ChatColor.RED + "The console cannot join a team, silly!");
-        return true;
+        return false;
     }
 }

@@ -29,9 +29,14 @@ public class YellCommand implements CommandExecutor {
                 message = message.trim();
                 if (args.length != 0) {
                     Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[Yell] " + ChatColor.AQUA + cmdSender.getName() + ": " + ChatColor.WHITE + message);
-                } else cmdSender.sendMessage(ChatColor.AQUA + "Usage : /yell [message]");
-            } else cmdSender.sendMessage(ChatColor.AQUA + "You need at least 20 priority to do that.");
-            return true;
+                } else {
+                    cmdSender.sendMessage(ChatColor.AQUA + "Usage : /yell [message]");
+                    return false;
+                }
+            } else {
+                cmdSender.sendMessage(ChatColor.AQUA + "You need at least 20 priority to do that.");
+                return true;
+            }
         } cmdSender.sendMessage(ChatColor.RED + "The console cannot yell!");
         return true;
     }
