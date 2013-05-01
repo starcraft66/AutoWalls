@@ -88,8 +88,6 @@ public class PriorityCommand implements CommandExecutor {
             } else {
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> " + ChatColor.YELLOW + "Get a player's priority");
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> set <amount> " + ChatColor.YELLOW + "Set a player's priority");
-                cmdSender.sendMessage("Args.length == " + args.length);
-                cmdSender.sendMessage("Args[1] == " + args[1]);
                 return false;
             }
         }
