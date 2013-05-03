@@ -60,7 +60,7 @@ public class PrefixCommand implements CommandExecutor {
                         cmdSender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + playerName + ChatColor.YELLOW + "'s prefix");
 
                         if (Bukkit.getPlayer(playerName) != null && Bukkit.getPlayer(playerName).isOnline()) {
-                            if (Bukkit.getPlayer(playerName).hasPermission("walls.op") || cmdSender.isOp()) {
+                            if (Bukkit.getPlayer(playerName).hasPermission("walls.op") || Bukkit.getPlayer(playerName).isOp()) {
                                 Bukkit.getPlayer(playerName).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + Bukkit.getPlayer(playerName).getName() + ChatColor.GRAY + ChatColor.WHITE);
                                 return true;
                             }
