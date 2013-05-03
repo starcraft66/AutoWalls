@@ -29,6 +29,7 @@ public class YellCommand implements CommandExecutor {
                 message = message.trim();
                 if (args.length != 0) {
                     Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "[Yell] " + ChatColor.AQUA + cmdSender.getName() + ": " + ChatColor.WHITE + message);
+                    return true;
                 } else {
                     cmdSender.sendMessage(ChatColor.AQUA + "Usage : /yell [message]");
                     return false;
