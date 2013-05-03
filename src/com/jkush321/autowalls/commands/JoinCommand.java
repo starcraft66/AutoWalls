@@ -25,7 +25,7 @@ public class JoinCommand implements CommandExecutor {
             Player p = (Player) cmdSender;
             boolean allowed = false;
             if (plugin.config.getInt("votes.players." + p.getName()) >= plugin.earlyJoinPriority && !plugin.gameInProgress) { allowed = true; }
-            if (plugin.canJoin && !plugin.gameInProgress){ allowed = true; }
+            if (plugin.canJoin && !plugin.gameInProgress && !plugin.gameOver){ allowed = true; }
             if (plugin.playing.size()<plugin.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && WallDropper.time > 0) { allowed = true; }
             if (!allowed)
             {
