@@ -24,6 +24,7 @@ public class PriorityCommand implements CommandExecutor {
             if (args.length == 0 || args.length == 2 || args.length > 3) {
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> " + ChatColor.YELLOW + "Get a player's priority");
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> set <amount> " + ChatColor.YELLOW + "Set a player's priority");
+                cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> add <amount> " + ChatColor.YELLOW + "Add to a player's priority");
                 return false;
             }
 
@@ -33,12 +34,14 @@ public class PriorityCommand implements CommandExecutor {
 
                     cmdSender.sendMessage(ChatColor.YELLOW + args[0] + "'s priority is " + plugin.config.getInt("votes.players." + args[0]) + ".");
                     cmdSender.sendMessage(ChatColor.YELLOW + "Use '/priority " + args[0] + " set <amount>' to alter " + args[0] + "'s priority.");
+                    cmdSender.sendMessage(ChatColor.YELLOW + "Use '/priority " + args[0] + " add <amount>' to add to " + args[0] + "'s priority.");
 
                     return true;
                 }
 
                 cmdSender.sendMessage(ChatColor.YELLOW + args[0] + "'s priority is 0.");
                 cmdSender.sendMessage(ChatColor.YELLOW + "Use '/priority " + args[0] + " set <amount>' to alter " + args[0] + "'s priority.");
+                cmdSender.sendMessage(ChatColor.YELLOW + "Use '/priority " + args[0] + " add <amount>' to add to " + args[0] + "'s priority.");
 
                 return true;
 
@@ -129,6 +132,7 @@ public class PriorityCommand implements CommandExecutor {
             } else {
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> " + ChatColor.YELLOW + "Get a player's priority");
                 cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> set <amount> " + ChatColor.YELLOW + "Set a player's priority");
+                cmdSender.sendMessage(ChatColor.RED + "Usage : /priority <name> add <amount> " + ChatColor.YELLOW + "Add to a player's priority");
                 return false;
             }
         }
