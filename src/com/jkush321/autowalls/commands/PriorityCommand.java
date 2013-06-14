@@ -123,7 +123,7 @@ public class PriorityCommand implements CommandExecutor {
 
                     String pl = args[0];
 
-                    plugin.config.set("votes.players." + pl, (plugin.config.getInt("votes.players." + pl + priorityAdd)));
+                    plugin.config.set("votes.players." + pl, (plugin.config.getInt("votes.players." + pl) + priorityAdd));
                     plugin.saveConfig();
                     cmdSender.sendMessage(ChatColor.YELLOW + pl + "'s priority is now " + plugin.config.getInt("votes.players." + pl));
 
