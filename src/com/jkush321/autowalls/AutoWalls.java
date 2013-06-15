@@ -72,9 +72,6 @@ public final class AutoWalls extends JavaPlugin {
     public static int[] greenQuadrant = new int[4];
     public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
-    public static Boolean announcerState;
-	public static String announcerName;
-	public static Thread announcer;
     public static int dropperTask;
 	public static Thread joinTimer;
 	public static boolean mapVotes;
@@ -148,8 +145,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("priorities", true);
 		config.addDefault("team-size", 4);
 		config.addDefault("next-map", 1);
-        config.addDefault("enable-announcer", true);
-		config.addDefault("announcer-name", "Announcer");
 		config.addDefault("announcements", "Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!");
 		config.addDefault("map-votes", true);
 		config.addDefault("prevent-sneaking-after-walls-fall", true);
@@ -175,8 +170,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.options().copyDefaults(true);
 	    saveConfig();	    
 
-        announcerState = config.getBoolean("enable-announcer");
-	    announcerName = config.getString("announcer-name");
 	    mapNumber = config.getInt("next-map");
 	    mapVotes = config.getBoolean("map-votes");
 	    blockSneaking = config.getBoolean("prevent-sneaking-after-walls-fall");
@@ -290,22 +283,6 @@ public final class AutoWalls extends JavaPlugin {
 	    }
 	    
 	    teamSize = config.getInt("team-size");
-
-        if (announcerState) {
-	    Announcer a = new Announcer();
-	    
-	    //My CC3.0 Attribution license requires you to leave this in some way
-	    //If you have forked it you can say...
-	    //"This server runs MyFork by Me based on AutoWalls by Jkush321" or something similar
-	    String[] announcements = config.getString("announcements").split(";");
-	    Announcer.messages.add("This server runs AutoWalls by jkush321");
-	    for (String s : announcements)
-	    {
-	    	Announcer.messages.add(s);
-	    }
-	        announcer = new Thread(a);
-	        announcer.start();
-        }
 	    
 	    joinTimer = new Thread(new JoinTimer());
 	    joinTimer.start();
@@ -339,11 +316,8 @@ public final class AutoWalls extends JavaPlugin {
 	}
 
     @Override
-    @SuppressWarnings("Deprecated")
 	public void onDisable() {
-        if (announcerState){
-		    announcer.stop();
-        }
+
 	}
 
 	
