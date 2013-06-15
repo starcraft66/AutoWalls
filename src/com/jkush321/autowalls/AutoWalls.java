@@ -73,7 +73,7 @@ public final class AutoWalls extends JavaPlugin {
     public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
     public static int dropperTask;
-	public static Thread joinTimer;
+	public static int joinTimerTask;
 	public static boolean mapVotes;
 	public static boolean blockSneaking;
 	public static boolean disableHealing;
@@ -284,8 +284,7 @@ public final class AutoWalls extends JavaPlugin {
 	    
 	    teamSize = config.getInt("team-size");
 	    
-	    joinTimer = new Thread(new JoinTimer());
-	    joinTimer.start();
+	    Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new JoinTimer(), 0L, 20L);
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 			public void run()
@@ -301,16 +300,16 @@ public final class AutoWalls extends JavaPlugin {
 		{
 			Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
 			Tags.useTagAPI=true;
-			System.out.println("[AutoWalls] Successfully hooked into TagAPI!");
+			logger.info("[AutoWalls] Successfully hooked into TagAPI!");
 		}
 		if (Bukkit.getPluginManager().getPlugin("TabAPI")!=null)
 		{
 			useTabApi=true;
-			System.out.println("[AutoWalls] Successfully hooked into TabAPI!");
+            logger.info("[AutoWalls] Successfully hooked into TabAPI!");
 		}
 		else if (useTabApi)
 		{
-			System.out.println("[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config!");
+            logger.severe("[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config! Disabling TabAPI features.");
 			useTabApi = false;
 		}
 	}
