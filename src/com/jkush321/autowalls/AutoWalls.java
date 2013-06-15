@@ -284,7 +284,7 @@ public final class AutoWalls extends JavaPlugin {
 	    
 	    teamSize = config.getInt("team-size");
 	    
-	    Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new JoinTimer(), 0L, 20L);
+	    joinTimerTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new JoinTimer(), 0L, 20L);
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 			public void run()
