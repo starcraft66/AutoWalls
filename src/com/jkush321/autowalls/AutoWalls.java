@@ -77,7 +77,7 @@ public final class AutoWalls extends JavaPlugin {
 	public static String announcerName;
 	public static Thread beat;
 	public static Thread announcer;
-	public static Thread dropper;
+    public static int dropperTask;
 	public static Thread joinTimer;
 	public static boolean mapVotes;
 	public static boolean blockSneaking;
@@ -318,9 +318,6 @@ public final class AutoWalls extends JavaPlugin {
 	    
 	    joinTimer = new Thread(new JoinTimer());
 	    joinTimer.start();
-
-		dropper = new Thread(new WallDropper());
-		dropper.start();
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 			public void run()
@@ -354,12 +351,11 @@ public final class AutoWalls extends JavaPlugin {
     @SuppressWarnings("Deprecated")
 	public void onDisable() {
         if (announcerState){
-		announcer.stop();
+		    announcer.stop();
         }
         if (heartbeatState) {
             beat.stop();
         }
-		dropper.stop();
 	}
 
 	
@@ -529,6 +525,9 @@ public final class AutoWalls extends JavaPlugin {
 				spectate(p);
 			}
 		}
+
+        dropperTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new WallDropper(this),0L, 20L );
+
         gameInProgress=true;
 	}
 	public void endGame(String team, String players)

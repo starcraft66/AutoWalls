@@ -70,7 +70,7 @@ public class PlayerListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e)
     {
         AutoWalls.setLastEventToNow(e.getPlayer());
-        if (WallDropper.timeContinued < 0 && WallDropper.timeContinued >= -30 && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
+        if (WallDropper.Dropping && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
         {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Please do not send messages about lag while the walls are falling ;)");
@@ -313,7 +313,7 @@ public class PlayerListener implements Listener {
         //FINALLY! Prevent pretty much all forms of cheating by not allowing players to leave their quadrants.
 
         if (AutoWalls.gameInProgress) {
-            if (WallDropper.time > 0) {
+            if (!WallDropper.Dropped) {
                 //Game must be in progress
                 if (AutoWalls.playing.contains(p)) {
                     //Only affect players
