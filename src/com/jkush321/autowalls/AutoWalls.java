@@ -535,11 +535,6 @@ public final class AutoWalls extends JavaPlugin {
 		if (!gameInProgress) return;
 		gameInProgress=false;
 		gameOver=true;
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		for (Player p : playing)
 		{
 			p.setHealth(0);
@@ -549,7 +544,6 @@ public final class AutoWalls extends JavaPlugin {
 		{
 			Bukkit.broadcastMessage(ChatColor.DARK_RED + "The " + team + " team has won the game!");
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Winning Players:  "+ ChatColor.DARK_GREEN + players);
-			try { Thread.sleep(1000); } catch (Exception e) { }
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "It is time to vote for the next map!");
 			Bukkit.broadcastMessage(ChatColor.YELLOW + "1 - The Walls   - by Hypixel - Modified by staff team");
 			Bukkit.broadcastMessage(ChatColor.YELLOW + "2 - The Walls 2 - by Hypixel - Modified by staff team");
