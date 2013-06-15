@@ -73,9 +73,7 @@ public final class AutoWalls extends JavaPlugin {
     public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
     public static Boolean announcerState;
-    public static Boolean heartbeatState;
 	public static String announcerName;
-	public static Thread beat;
 	public static Thread announcer;
     public static int dropperTask;
 	public static Thread joinTimer;
@@ -150,7 +148,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("priorities", true);
 		config.addDefault("team-size", 4);
 		config.addDefault("next-map", 1);
-        config.addDefault("enable-heartbeats", true);
         config.addDefault("enable-announcer", true);
 		config.addDefault("announcer-name", "Announcer");
 		config.addDefault("announcements", "Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!");
@@ -178,7 +175,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.options().copyDefaults(true);
 	    saveConfig();	    
 
-        heartbeatState = config.getBoolean("enable-heartbeats");
         announcerState = config.getBoolean("enable-announcer");
 	    announcerName = config.getString("announcer-name");
 	    mapNumber = config.getInt("next-map");
@@ -310,11 +306,6 @@ public final class AutoWalls extends JavaPlugin {
 	        announcer = new Thread(a);
 	        announcer.start();
         }
-
-        if (heartbeatState) {
-	    beat = new Thread(new Heartbeat());
-	    beat.start();
-        }
 	    
 	    joinTimer = new Thread(new JoinTimer());
 	    joinTimer.start();
@@ -352,9 +343,6 @@ public final class AutoWalls extends JavaPlugin {
 	public void onDisable() {
         if (announcerState){
 		    announcer.stop();
-        }
-        if (heartbeatState) {
-            beat.stop();
         }
 	}
 
