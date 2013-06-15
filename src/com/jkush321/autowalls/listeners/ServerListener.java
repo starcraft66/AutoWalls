@@ -21,24 +21,15 @@ public class ServerListener implements Listener {
         String message = "AutoWalls Server";
         if (!AutoWalls.gameInProgress && !AutoWalls.gameOver)
         {
-            message=(ChatColor.DARK_GREEN + "Getting ready to start!");
-        }
-        else if (AutoWalls.gameInProgress && WallDropper.time > 0)
-        {
-            int mins = WallDropper.time / 60;
-            int secs = WallDropper.time % 60;
-            message=(ChatColor.DARK_GREEN + "Walls drop in "+ ChatColor.YELLOW + mins + ChatColor.DARK_RED + " mins, " + ChatColor.YELLOW + secs + ChatColor.DARK_RED + " secs!");
+            message=(ChatColor.DARK_GREEN + "Game ready");
         }
         else if (AutoWalls.gameInProgress)
         {
-            message=(ChatColor.YELLOW + "" + AutoWalls.playing.size() + ChatColor.DARK_RED + " players alive!");
+            message=(ChatColor.DARK_GREEN + "Game started");
         }
-        else if (AutoWalls.gameOver && !AutoWalls.voting)
+        else if (AutoWalls.gameOver)
         {
-            message=ChatColor.DARK_GREEN + "Game has ended!";
-        }
-        else {
-            message=ChatColor.DARK_AQUA + "Voting for the next map!";
+            message=ChatColor.DARK_GREEN + "Game ended";
         }
         e.setMotd(message);
     }
