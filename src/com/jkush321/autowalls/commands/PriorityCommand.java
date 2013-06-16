@@ -103,7 +103,9 @@ public class PriorityCommand implements CommandExecutor {
                         Bukkit.getPlayer(pl.getName()).sendMessage(ChatColor.YELLOW + "Your priority is now " + plugin.config.getInt("votes.players." + pl.getName()));
                     }
                     cmdSender.sendMessage(ChatColor.YELLOW + pl.getName() + "'s priority is now " + plugin.config.getInt("votes.players." + pl.getName()));
-                    if (Bukkit.getPlayer(pl.getName()).hasPermission("walls.op") || pl.isOp()) {
+                    if (plugin.config.isSet("prefix." + Bukkit.getPlayer(pl.getName()).getName())) {
+                        Bukkit.getPlayer(pl.getName()).setDisplayName(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("prefix." + Bukkit.getPlayer(pl.getName()).getName()).replace("{pri}", plugin.config.getInt("votes.players." + Bukkit.getPlayer(pl.getName()).getName()) + "") + Bukkit.getPlayer(pl.getName()).getName() + ChatColor.WHITE));
+                    } else if (Bukkit.getPlayer(pl.getName()).hasPermission("walls.op") || pl.isOp()) {
                         Bukkit.getPlayer(pl.getName()).setDisplayName(ChatColor.DARK_BLUE + "[" + ChatColor.DARK_GREEN + "Admin" + ChatColor.DARK_BLUE + "]" + ChatColor.DARK_RED + Bukkit.getPlayer(pl.getName()).getName() + ChatColor.GRAY + ChatColor.WHITE);
                         return true;
                     }
