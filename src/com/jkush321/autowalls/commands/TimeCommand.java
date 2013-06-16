@@ -27,7 +27,7 @@ public class TimeCommand implements CommandExecutor {
         minutes = WallDropper.time / 60;
         seconds = WallDropper.time % 60;
 
-        if (minutes==0 && seconds==0) {cmdSender.sendMessage(ChatColor.GRAY + "The Walls Already Dropped!"); return true;}
+        if (WallDropper.time < 1) {cmdSender.sendMessage(ChatColor.GRAY + "The Walls Already Dropped!"); return true;}
         cmdSender.sendMessage(ChatColor.GRAY + "The walls will drop in " + minutes + " minutes and " + seconds + " seconds!");
         return true;
     }

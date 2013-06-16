@@ -153,6 +153,9 @@ public class WallDropper extends BukkitRunnable{
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,new Runnable() {
             @Override
             public void run() {
+                if (time >= 60) {
+                    Bukkit.broadcastMessage(ChatColor.DARK_RED + prefix + " " + ChatColor.YELLOW + WallDropper.time/60 + ChatColor.DARK_RED + " " + suffix);
+                }
                 Bukkit.broadcastMessage(ChatColor.DARK_RED + prefix + " " + ChatColor.YELLOW + WallDropper.time + ChatColor.DARK_RED + " " + suffix);
             }
         });
