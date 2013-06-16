@@ -512,7 +512,7 @@ public final class AutoWalls extends JavaPlugin {
 			
 			voting = true;
 			
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new VoteResult(), 20L * 30L);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new VoteResult(this), 20L * 30L);
 		}
 		else
 		{
