@@ -34,8 +34,16 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class VoteResult implements Runnable {
+
+    private AutoWalls plugin;
+
+    public VoteResult(AutoWalls plugin) {
+        this.plugin = plugin;
+    }
+
 	public void run()
 	{
 		try {
@@ -43,7 +51,7 @@ public class VoteResult implements Runnable {
 			Bukkit.broadcastMessage(ChatColor.DARK_RED + "The votes are in...");
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "1 - " + AutoWalls.votedFor1.size());
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "2 - " + AutoWalls.votedFor2.size());
-			Thread.sleep(2000);
+
 			if (AutoWalls.votedFor1.size()!=AutoWalls.votedFor2.size())
 			{
 				if (AutoWalls.votedFor1.size() > AutoWalls.votedFor2.size())
@@ -62,13 +70,20 @@ public class VoteResult implements Runnable {
 			}
 			emptyFolder(new File("custom"));
 			(new File("custom")).delete();
-			Bukkit.getPluginManager().getPlugin("AutoWalls").saveConfig();
+			plugin.saveConfig();
 			copyFolder(new File("custom" + AutoWalls.config.getInt("next-map")), new File("custom"));
 			
 			for (Player p : Bukkit.getOnlinePlayers())
 			{
 				p.kickPlayer(ChatColor.RED + "Next game: The Walls " + (AutoWalls.config.getInt("next-map")) + ChatColor.AQUA + " Reconnect and type /join to get in a game.");
 			}
+            //Leave my hub kick plugin some time to send all players to the lobby!
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Bukkit.shutdown();
+                }
+            }, 40L);
 			Bukkit.shutdown();
 		}
 		catch (Exception e)
