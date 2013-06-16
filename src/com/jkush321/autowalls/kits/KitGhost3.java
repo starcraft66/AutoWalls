@@ -42,7 +42,7 @@ public class KitGhost3 extends Kit {
 		ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
 		sword.addEnchantment(Enchantment.DAMAGE_ALL, 1);
 		ItemStack flintNSteel = new ItemStack(Material.FLINT_AND_STEEL);
-		contents = new ItemStack[]{ potion.toItemStack(5), sword, flintNSteel };
+		contents = new ItemStack[]{ potion.toItemStack(1), sword, flintNSteel };
 	}
 	
 	@Override

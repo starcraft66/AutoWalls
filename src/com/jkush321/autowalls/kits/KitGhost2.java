@@ -36,8 +36,7 @@ public class KitGhost2 extends Kit {
 	{
 		Potion potion = new Potion(PotionType.INVISIBILITY);
 		potion.setSplash(true);
-		potion.setHasExtendedDuration(true);
-		contents = new ItemStack[]{ potion.toItemStack(5) };
+		contents = new ItemStack[]{ potion.toItemStack(2) };
 	}
 	
 	@Override
