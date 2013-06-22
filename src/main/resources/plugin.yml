@@ -1,8 +1,8 @@
 name: AutoWalls
-main: com.jkush321.autowalls.AutoWalls
+main: com.jkush321.com.jkush321.autowalls.AutoWalls
 version: 1.0
 commands:
-  autowalls:
+  com.jkush321.autowalls:
     description: Display version and reload config.
   join:
     description: Joins a team

@@ -19,7 +19,7 @@ public class AutoWallsCommand implements CommandExecutor {
 
         if (args.length == 0){
             cmdSender.sendMessage(ChatColor.AQUA + "AutoWalls v." + ChatColor.YELLOW + plugin.version);
-            cmdSender.sendMessage(ChatColor.RED + "Usage : /autowalls <reload>");
+            cmdSender.sendMessage(ChatColor.RED + "Usage : /com.jkush321.autowalls <reload>");
             return false;
         }
 
