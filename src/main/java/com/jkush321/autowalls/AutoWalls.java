@@ -488,7 +488,6 @@ public final class AutoWalls extends JavaPlugin {
 		}
 
         dropperTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new WallDropper(this),0L, 20L );
-
         gameInProgress=true;
 	}
 	public void endGame(String team, String players)
