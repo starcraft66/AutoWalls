@@ -177,6 +177,11 @@ public class PlayerListener implements Listener {
         AutoWalls.setLastEventToNow(e.getPlayer());
         if (!AutoWalls.playing.contains(e.getPlayer()) && !e.getPlayer().hasPermission("walls.op")) e.setCancelled(true);
     }
+    @EventHandler
+    public void onPickUp(PlayerPickupItemEvent e)
+    {
+        if (!AutoWalls.playing.contains(e.getPlayer())) e.setCancelled(true);
+    }
     @EventHandler (priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent e)
     {

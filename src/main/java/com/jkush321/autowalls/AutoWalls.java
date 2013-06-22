@@ -52,7 +52,6 @@ public final class AutoWalls extends JavaPlugin {
 	public static Plugin plugin = Bukkit.getPluginManager().getPlugin("AutoWalls");
 	public static final Logger logger = Logger.getLogger("Minecraft");
 	public static List<Player> playing = new CopyOnWriteArrayList<Player>();
-    public static List<Player> spectating = new CopyOnWriteArrayList<Player>();
 	public static List<Player> redTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> blueTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> greenTeam = new CopyOnWriteArrayList<Player>();
@@ -109,7 +108,7 @@ public final class AutoWalls extends JavaPlugin {
 
         //Register commands
 
-        getCommand("com/jkush321/autowalls").setExecutor(new AutoWallsCommand(this));
+        getCommand("autowalls").setExecutor(new AutoWallsCommand(this));
         getCommand("day").setExecutor(new DayCommand(this));
         getCommand("fly").setExecutor(new FlyCommand(this));
         getCommand("forcedrop").setExecutor(new ForceDropCommand(this));
@@ -576,7 +575,6 @@ public final class AutoWalls extends JavaPlugin {
 		p.sendMessage(ChatColor.YELLOW + "You are now spectating!");
 		p.sendMessage(ChatColor.YELLOW + "You can enable flying with /fly");
 		p.setGameMode(GameMode.ADVENTURE);
-        spectating.add(p);
 	}
 
 	public void createGrave(Location l, String playername)
