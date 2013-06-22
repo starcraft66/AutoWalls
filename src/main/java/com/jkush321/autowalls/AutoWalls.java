@@ -139,7 +139,7 @@ public final class AutoWalls extends JavaPlugin {
         getServer().getPluginManager().registerEvents(WorldListener, this);
         getServer().getPluginManager().registerEvents(ServerListener, this);
 		config = getConfig();
-		
+
 		config.addDefault("votes.players.jkush321", 500);
 		config.addDefault("votes.players.example_player", 2);
 		config.addDefault("priorities", true);
