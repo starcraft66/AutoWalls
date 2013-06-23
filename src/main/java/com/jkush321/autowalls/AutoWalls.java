@@ -168,7 +168,7 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("use-tab-api", true);
 		
 		config.options().copyDefaults(true);
-	    saveConfig();
+	    saveConfig();	    
 
 	    mapNumber = config.getInt("next-map");
 	    mapVotes = config.getBoolean("map-votes");
@@ -295,7 +295,7 @@ public final class AutoWalls extends JavaPlugin {
 		
 		Grenades.init();
 		KitManager.fillKits();
-
+		
 		if (Bukkit.getPluginManager().getPlugin("TagAPI")!= null)
 		{
 			Bukkit.getPluginManager().registerEvents(new ColoredNames(), this);
