@@ -46,6 +46,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.jkush321.autowalls.kits.KitManager;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class AutoWalls extends JavaPlugin {
 
@@ -312,6 +313,16 @@ public final class AutoWalls extends JavaPlugin {
             logger.severe("[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config! Disabling TabAPI features.");
 			useTabApi = false;
 		}
+
+        //Cancel weather cause no one likes rain ;-)
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                Bukkit.getWorlds().get(0).setStorm(false);
+                Bukkit.getWorlds().get(0).setThundering(false);
+            }
+        }.runTaskLater(this, 100L);
 	}
 
     @Override
