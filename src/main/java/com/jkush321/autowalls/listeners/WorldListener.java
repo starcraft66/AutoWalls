@@ -57,11 +57,6 @@ public class WorldListener implements Listener {
         }
     }
 
-    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
-    public void onLightningStrike( LightningStrikeEvent event )
-    {
-        event.setCancelled( true );
-    }
     @EventHandler
     public void onProjectileLand(ProjectileHitEvent e)
     {
