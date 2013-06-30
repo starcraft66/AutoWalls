@@ -46,13 +46,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.jkush321.autowalls.kits.KitManager;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class AutoWalls extends JavaPlugin {
 
 	public static Plugin plugin = Bukkit.getPluginManager().getPlugin("AutoWalls");
 	public static final Logger logger = Logger.getLogger("Minecraft");
 	public static List<Player> playing = new CopyOnWriteArrayList<Player>();
-    public static List<Player> spectating = new CopyOnWriteArrayList<Player>();
 	public static List<Player> redTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> blueTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> greenTeam = new CopyOnWriteArrayList<Player>();
@@ -109,7 +109,7 @@ public final class AutoWalls extends JavaPlugin {
 
         //Register commands
 
-        getCommand("com/jkush321/autowalls").setExecutor(new AutoWallsCommand(this));
+        getCommand("autowalls").setExecutor(new AutoWallsCommand(this));
         getCommand("day").setExecutor(new DayCommand(this));
         getCommand("fly").setExecutor(new FlyCommand(this));
         getCommand("forcedrop").setExecutor(new ForceDropCommand(this));
@@ -140,7 +140,7 @@ public final class AutoWalls extends JavaPlugin {
         getServer().getPluginManager().registerEvents(WorldListener, this);
         getServer().getPluginManager().registerEvents(ServerListener, this);
 		config = getConfig();
-		
+
 		config.addDefault("votes.players.jkush321", 500);
 		config.addDefault("votes.players.example_player", 2);
 		config.addDefault("priorities", true);
@@ -313,6 +313,16 @@ public final class AutoWalls extends JavaPlugin {
             logger.severe("[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config! Disabling TabAPI features.");
 			useTabApi = false;
 		}
+
+        //Cancel weather cause no one likes rain ;-)
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                Bukkit.getWorlds().get(0).setStorm(false);
+                Bukkit.getWorlds().get(0).setThundering(false);
+            }
+        }.runTaskLater(this, 100L);
 	}
 
     @Override
@@ -576,7 +586,6 @@ public final class AutoWalls extends JavaPlugin {
 		p.sendMessage(ChatColor.YELLOW + "You are now spectating!");
 		p.sendMessage(ChatColor.YELLOW + "You can enable flying with /fly");
 		p.setGameMode(GameMode.ADVENTURE);
-        spectating.add(p);
 	}
 
 	public void createGrave(Location l, String playername)

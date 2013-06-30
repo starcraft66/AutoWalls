@@ -11,7 +11,7 @@ public class UpdateChecker {
 	public static void checkAndSendMessage(Player p)
 	{
 		try{
-			URL url = new URL("http://infacraft.net/com.jkush321.autowalls/version.txt");
+			URL url = new URL("http://infacraft.net/autowalls/version.txt");
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
 			String s = "";
 			String response = "";
@@ -23,7 +23,7 @@ public class UpdateChecker {
 			response=response.trim();
 			
 			if (!response.equals(AutoWalls.version)){
-				url = new URL("http://infacraft.net/com.jkush321.autowalls/majorchanges.txt");
+				url = new URL("http://infacraft.net/autowalls/majorchanges.txt");
 				br = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
 				s = "";
 				response = "";
