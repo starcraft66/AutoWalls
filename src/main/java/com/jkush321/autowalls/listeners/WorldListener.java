@@ -16,7 +16,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
@@ -58,11 +57,6 @@ public class WorldListener implements Listener {
         }
     }
 
-    @EventHandler( priority = EventPriority.HIGHEST, ignoreCancelled = true )
-    public void onLightningStrike( LightningStrikeEvent event )
-    {
-        event.setCancelled( true );
-    }
     @EventHandler
     public void onProjectileLand(ProjectileHitEvent e)
     {
