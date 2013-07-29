@@ -1,7 +1,7 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.WallDropper;
+import com.jkush321.autowalls.Timer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,10 +24,10 @@ public class TimeCommand implements CommandExecutor {
         {
             cmdSender.sendMessage(ChatColor.GRAY + "The game hasn't started yet!"); return true;
         }
-        minutes = WallDropper.time / 60;
-        seconds = WallDropper.time % 60;
+        minutes = Timer.time / 60;
+        seconds = Timer.time % 60;
 
-        if (WallDropper.time < 1) {cmdSender.sendMessage(ChatColor.GRAY + "The Walls Already Dropped!"); return true;}
+        if (Timer.time < 1) {cmdSender.sendMessage(ChatColor.GRAY + "The Walls Already Dropped!"); return true;}
         cmdSender.sendMessage(ChatColor.GRAY + "The walls will drop in " + minutes + " minutes and " + seconds + " seconds!");
         return true;
     }

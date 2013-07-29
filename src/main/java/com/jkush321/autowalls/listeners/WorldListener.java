@@ -2,7 +2,7 @@ package com.jkush321.autowalls.listeners;
 
 import com.jkush321.autowalls.AutoWalls;
 import com.jkush321.autowalls.Grenades;
-import com.jkush321.autowalls.WallDropper;
+import com.jkush321.autowalls.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,7 +16,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -67,7 +66,7 @@ public class WorldListener implements Listener {
                 if (e.getEntity().getShooter() instanceof Player)
                 {
                     Player shooter = (Player) e.getEntity().getShooter();
-                    if (WallDropper.time <= 0)
+                    if (Timer.time <= 0)
                     {
                         Random r = new Random();
                         int rand = r.nextInt(AutoWalls.arrowLightningChance);

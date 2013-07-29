@@ -1,7 +1,7 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.WallDropper;
+import com.jkush321.autowalls.Timer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +26,7 @@ public class JoinCommand implements CommandExecutor {
             boolean allowed = false;
             if (plugin.config.getInt("votes.players." + p.getName()) >= plugin.earlyJoinPriority && !plugin.gameInProgress) { allowed = true; }
             if (plugin.canJoin && !plugin.gameInProgress && !plugin.gameOver){ allowed = true; }
-            if (plugin.playing.size()<plugin.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && WallDropper.time > 0) { allowed = true; }
+            if (plugin.playing.size()<plugin.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0) { allowed = true; }
             if (!allowed)
             {
                 cmdSender.sendMessage(ChatColor.DARK_RED + "You can not join the game at this time!");

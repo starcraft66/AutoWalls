@@ -18,7 +18,7 @@ public class Grenades {
 	
 	public static void handleLanding(ProjectileHitEvent e, Projectile proj)
 	{
-		if (WallDropper.time > 0)
+		if (Timer.time > 0)
 		{
 			Player player = (Player) proj.getShooter();
 			player.sendMessage(ChatColor.RED + "Your grenade did not go off, the walls are still up.");
