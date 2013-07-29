@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
@@ -136,5 +138,19 @@ public class WorldListener implements Listener {
             e.getEntity().setMetadata("grenade-type", new FixedMetadataValue(plugin, e.getEntity().getShooter().getMetadata("last-grenade").get(0).asString()));
         }
     }
-
+    @EventHandler
+    public void onStructureGrow(StructureGrowEvent e) {
+        List<BlockState> blocks = e.getBlocks();
+        for (BlockState bs : blocks) {
+            if (AutoWalls.mapNumber == 1) {
+                if (bs.getLocation().getY() > 137) {
+                    bs.getLocation().getBlock().setType(Material.AIR);
+                }
+            } else if (AutoWalls.mapNumber == 2) {
+                if (bs.getBlock().getY() > 94) {
+                    bs.getLocation().getBlock().setType(Material.AIR);
+                }
+            }
+        }
+    }
 }
