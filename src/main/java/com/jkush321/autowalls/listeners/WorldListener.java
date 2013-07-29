@@ -150,6 +150,8 @@ public class WorldListener implements Listener {
                 if (bs.getBlock().getY() > 94) {
                     bs.getLocation().getBlock().setType(Material.AIR);
                 }
+            } else {
+                Bukkit.getLogger().severe("Invaid map number!");
             }
         }
     }
