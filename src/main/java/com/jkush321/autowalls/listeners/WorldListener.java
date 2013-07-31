@@ -141,14 +141,16 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onStructureGrow(StructureGrowEvent e) {
         List<BlockState> blocks = e.getBlocks();
-        for (BlockState bs : blocks) {
+        for (int i =0; i < blocks.size(); i++) {
             if (AutoWalls.mapNumber == 1) {
-                if (bs.getLocation().getY() > 137) {
-                    bs.getLocation().getBlock().setType(Material.AIR);
+                if (blocks.get(i).getLocation().getY() > 137) {
+                    e.getBlocks().remove(i);
+                    i--;
                 }
             } else if (AutoWalls.mapNumber == 2) {
-                if (bs.getBlock().getY() > 94) {
-                    bs.getLocation().getBlock().setType(Material.AIR);
+                if (blocks.get(i).getBlock().getY() > 94) {
+                    e.getBlocks().remove(1);
+                    i--;
                 }
             } else {
                 Bukkit.getLogger().severe("Invaid map number!");
