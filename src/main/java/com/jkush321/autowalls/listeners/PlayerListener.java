@@ -62,7 +62,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent e)
     {
-        if (AutoWalls.playing.contains(e.getPlayer()) && WallDropper.time<=0 && AutoWalls.blockSneaking)
+        if (AutoWalls.playing.contains(e.getPlayer()) && Timer.time<=0 && AutoWalls.blockSneaking)
             if (e.isSneaking()==true) e.setCancelled(true);
     }
     @EventHandler
@@ -70,7 +70,7 @@ public class PlayerListener implements Listener {
     {
         if (e.getEntity() instanceof Player)
         {
-            if (AutoWalls.playing.contains((Player) e.getEntity()) && AutoWalls.disableHealing && WallDropper.time<=0) {
+            if (AutoWalls.playing.contains((Player) e.getEntity()) && AutoWalls.disableHealing && Timer.time<=0) {
                 Random r = new Random();
                 e.setAmount(r.nextInt( (20 - ((Player)e.getEntity()).getHealth()) / 2 ));
             }
@@ -81,7 +81,7 @@ public class PlayerListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e)
     {
         AutoWalls.setLastEventToNow(e.getPlayer());
-        if (WallDropper.Dropping && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
+        if (Timer.Dropping && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
         {
             e.setCancelled(true);
             e.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Please do not send messages about lag while the walls are falling ;)");
@@ -169,7 +169,7 @@ public class PlayerListener implements Listener {
         if (AutoWalls.blueTeam.contains(p) && AutoWalls.blueTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
         if (AutoWalls.greenTeam.contains(p) && AutoWalls.greenTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
         if (AutoWalls.orangeTeam.contains(p) && AutoWalls.orangeTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
-        if (WallDropper.time > 0 && AutoWalls.playing.contains(p) && AutoWalls.playing.contains(damager)) { damager.sendMessage(ChatColor.RED + "The walls haven't dropped yet! Why are you hitting " + p.getName() + "?"); e.setCancelled(true); return; }
+        if (Timer.time > 0 && AutoWalls.playing.contains(p) && AutoWalls.playing.contains(damager)) { damager.sendMessage(ChatColor.RED + "The walls haven't dropped yet! Why are you hitting " + p.getName() + "?"); e.setCancelled(true); return; }
     }
     @EventHandler
     public void onDroppedItem(PlayerDropItemEvent e)
@@ -230,7 +230,7 @@ public class PlayerListener implements Listener {
                         if (e.getPlayer().hasMetadata("last-grenade")) e.getPlayer().removeMetadata("last-grenade", plugin);
                     }
                 }
-                else if (e.getPlayer().getItemInHand().getType() == Material.ENDER_PEARL && WallDropper.time > 0)
+                else if (e.getPlayer().getItemInHand().getType() == Material.ENDER_PEARL && Timer.time > 0)
                 {
                     e.getPlayer().sendMessage(ChatColor.RED + "You can not do that until the walls fall!");
                     e.setCancelled(true);
@@ -264,7 +264,7 @@ public class PlayerListener implements Listener {
                             }
                         }
                     }
-                    if (e.getPlayer().getItemInHand().getType() != Material.FLINT_AND_STEEL && e.getPlayer().getItemInHand().getType() == Material.FIREBALL && WallDropper.time > 0 && AutoWalls.preventFireBeforeWallsFall)
+                    if (e.getPlayer().getItemInHand().getType() != Material.FLINT_AND_STEEL && e.getPlayer().getItemInHand().getType() == Material.FIREBALL && Timer.time > 0 && AutoWalls.preventFireBeforeWallsFall)
                     {
                         e.getPlayer().sendMessage(ChatColor.DARK_RED + "You can't place fire until the walls have fallen!");
                         e.setCancelled(true);
@@ -324,7 +324,7 @@ public class PlayerListener implements Listener {
         //FINALLY! Prevent pretty much all forms of cheating by not allowing players to leave their quadrants.
 
         if (AutoWalls.gameInProgress) {
-            if (!WallDropper.Dropped) {
+            if (!Timer.Dropped) {
                 //Game must be in progress
                 if (AutoWalls.playing.contains(p)) {
                     //Only affect players

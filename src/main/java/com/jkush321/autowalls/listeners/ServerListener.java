@@ -1,7 +1,6 @@
 package com.jkush321.autowalls.listeners;
 
 import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.WallDropper;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -2,11 +2,12 @@ package com.jkush321.autowalls.listeners;
 
 import com.jkush321.autowalls.AutoWalls;
 import com.jkush321.autowalls.Grenades;
-import com.jkush321.autowalls.WallDropper;
+import com.jkush321.autowalls.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,9 +17,9 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class WorldListener implements Listener {
                 if (e.getEntity().getShooter() instanceof Player)
                 {
                     Player shooter = (Player) e.getEntity().getShooter();
-                    if (WallDropper.time <= 0)
+                    if (Timer.time <= 0)
                     {
                         Random r = new Random();
                         int rand = r.nextInt(AutoWalls.arrowLightningChance);
@@ -137,5 +138,23 @@ public class WorldListener implements Listener {
             e.getEntity().setMetadata("grenade-type", new FixedMetadataValue(plugin, e.getEntity().getShooter().getMetadata("last-grenade").get(0).asString()));
         }
     }
-
+    @EventHandler
+    public void onStructureGrow(StructureGrowEvent e) {
+        List<BlockState> blocks = e.getBlocks();
+        for (int i =0; i < blocks.size(); i++) {
+            if (AutoWalls.mapNumber == 1) {
+                if (blocks.get(i).getLocation().getY() > 137) {
+                    e.getBlocks().remove(i);
+                    i--;
+                }
+            } else if (AutoWalls.mapNumber == 2) {
+                if (blocks.get(i).getBlock().getY() > 94) {
+                    e.getBlocks().remove(1);
+                    i--;
+                }
+            } else {
+                Bukkit.getLogger().severe("Invaid map number!");
+            }
+        }
+    }
 }

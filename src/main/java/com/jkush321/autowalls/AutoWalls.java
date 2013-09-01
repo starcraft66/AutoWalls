@@ -61,6 +61,7 @@ public final class AutoWalls extends JavaPlugin {
 	public static List<Player> votedFor2 = new ArrayList<Player>();
 	public static boolean gameInProgress = false;
 	public static boolean voting = false;
+    public static boolean deathmatches = true;
 	public static FileConfiguration config;
 	public static boolean gameOver = false;
 	public static int teamSize;
@@ -73,7 +74,7 @@ public final class AutoWalls extends JavaPlugin {
     public static int[] greenQuadrant = new int[4];
     public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
-    public static int dropperTask;
+    public static int timerTask;
 	public static int joinTimerTask;
 	public static boolean mapVotes;
 	public static boolean blockSneaking;
@@ -158,6 +159,8 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("priority-kick-message", "Someone with higher priority joined!");
 		config.addDefault("team-teleports", true);
 		config.addDefault("game-length-in-minutes", 15);
+        config.addDefault("deathmatches", true);
+        config.addDefault("time-until-deathmatch-in-minutes", 10);
 		config.addDefault("vote-link", "my-vote-link.com");
 		config.addDefault("priority-per-dollar", 5);
 		config.addDefault("seconds-before-teleport", 3);
@@ -182,7 +185,8 @@ public final class AutoWalls extends JavaPlugin {
 	    priorityKickMessage=config.getString("priority-kick-message");
 	    JoinTimer.timeleft = config.getInt("seconds-before-can-join-team");
 	    teamTeleports = config.getBoolean("team-teleports");
-	    WallDropper.time=config.getInt("game-length-in-minutes") * 60;
+        deathmatches = config.getBoolean("deathmatches");
+	    Timer.time=config.getInt("game-length-in-minutes") * 60;
 	    votelink = config.getString("vote-link");
 	    priorityPerDollar=config.getInt("priority-per-dollar");
 	    secondsBeforeTeleport=config.getInt("seconds-before-teleport");
@@ -440,7 +444,7 @@ public final class AutoWalls extends JavaPlugin {
 		if (greenTeam.contains(p)) greenTeam.remove(p);
 		if (orangeTeam.contains(p)) orangeTeam.remove(p);
 		if (TeamChat.teamChatting.contains(p)) TeamChat.teamChatting.remove(p);
-		if (WallDropper.time > 0 && gameInProgress && lateJoins) { Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "A player with " + lateJoinPriority + "+ priority may " + ChatColor.YELLOW + "/join and take " + p.getName() + "'s place!"); }
+		if (Timer.time > 0 && gameInProgress && lateJoins) { Bukkit.broadcastMessage(ChatColor.DARK_GREEN + "A player with " + lateJoinPriority + "+ priority may " + ChatColor.YELLOW + "/join and take " + p.getName() + "'s place!"); }
 		for (Player pl : Bukkit.getOnlinePlayers())
 		{
 			if (pl!=p)
@@ -498,7 +502,7 @@ public final class AutoWalls extends JavaPlugin {
 			}
 		}
 
-        dropperTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new WallDropper(this),0L, 20L );
+        timerTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Timer(this),0L, 20L );
 
         gameInProgress=true;
 	}

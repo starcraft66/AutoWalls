@@ -44,7 +44,7 @@ public class PlayerBlockListener implements Listener {
             if (e.getBlock().getX()<-863) e.setCancelled(true);
             if (e.getBlock().getX()>-725) e.setCancelled(true);
             if (e.getBlock().getZ()<-243) e.setCancelled(true);
-            if (e.getBlock().getY() > 95) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
+            if (e.getBlock().getY() > 94) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
         }
         if (e.getBlock() instanceof Sign)
         {
@@ -70,7 +70,7 @@ public class PlayerBlockListener implements Listener {
             if (e.getBlock().getZ()<-853) e.setCancelled(true);
             if (e.getBlock().getX()<286) e.setCancelled(true);
             if (e.getBlock().getZ()>-731) e.setCancelled(true);
-            if (e.getBlock().getY() > 138) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
+            if (e.getBlock().getY() > 137) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
         }
         else if (AutoWalls.mapNumber ==2)
         {
@@ -82,7 +82,7 @@ public class PlayerBlockListener implements Listener {
             if (e.getBlock().getX()<-863) e.setCancelled(true);
             if (e.getBlock().getX()>-725) e.setCancelled(true);
             if (e.getBlock().getZ()<-243) e.setCancelled(true);
-            if (e.getBlock().getY() > 94) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the heigt limit. This prevents getting over walls."); }
+            if (e.getBlock().getY() > 94) {e.setCancelled(true); e.getPlayer().sendMessage(ChatColor.RED + "You can't build over the height limit. This prevents getting over walls."); }
         }
     }
 
