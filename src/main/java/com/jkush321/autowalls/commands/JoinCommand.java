@@ -26,7 +26,7 @@ public class JoinCommand implements CommandExecutor {
             boolean allowed = false;
             if (plugin.config.getInt("votes.players." + p.getName()) >= plugin.earlyJoinPriority && !plugin.gameInProgress) { allowed = true; }
             if (plugin.canJoin && !plugin.gameInProgress && !plugin.gameOver){ allowed = true; }
-            if (plugin.playing.size()<plugin.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0) { allowed = true; }
+            if (plugin.playing.size()<plugin.arena.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0) { allowed = true; }
             if (!allowed)
             {
                 cmdSender.sendMessage(ChatColor.DARK_RED + "You can not join the game at this time!");
@@ -34,13 +34,13 @@ public class JoinCommand implements CommandExecutor {
             }
             if (args.length == 0) // Add to random team
             {
-                if (plugin.redTeam.size()<plugin.teamSize)
+                if (plugin.redTeam.size()<plugin.arena.teamSize)
                     plugin.joinTeam(p, "red");
-                else if (plugin.blueTeam.size()<plugin.teamSize)
+                else if (plugin.blueTeam.size()<plugin.arena.teamSize)
                     plugin.joinTeam(p, "blue");
-                else if (plugin.greenTeam.size()<plugin.teamSize)
+                else if (plugin.greenTeam.size()<plugin.arena.teamSize)
                     plugin.joinTeam(p, "green");
-                else if (plugin.orangeTeam.size()<plugin.teamSize)
+                else if (plugin.orangeTeam.size()<plugin.arena.teamSize)
                     plugin.joinTeam(p, "orange");
                 else p.sendMessage(ChatColor.RED + "Every team is full!");
             }

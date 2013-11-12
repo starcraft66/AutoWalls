@@ -1,0 +1,72 @@
+walls-arena:
+  '1':
+    name: The Walls
+    author: HyPixel
+    players-per-team: 3
+    minheight: 53
+    maxheight: 141
+    game-length: 900
+    lobby:
+      spawn:
+        x: 245
+        y: 149
+        z: -792
+    deathmatch:
+      x: 240
+      y: 149
+      z: -812
+    redstone-activation-location:
+      x: 357
+      y: 51
+      z: -856
+    corner1:
+      x: 408
+      z: -853
+    corner2:
+      x: 286
+      z: -731
+    green:
+      spawn:
+        x: 290
+        y: 117
+        z: -849
+      corner1:
+        x: 346
+        z: -854
+      corner2:
+        x: 285
+        z: -793
+    blue:
+      spawn:
+        x: 290
+        y: 117
+        z: -735
+      corner1:
+        x: 346
+        z: -791
+      corner2:
+        x: 285
+        z: -730
+    orange:
+      spawn:
+        x: 404
+        y: 117
+        z: -849
+      corner1:
+        x: 409
+        z: -854
+      corner2:
+        x: 348
+        z: -793
+    red:
+      spawn:
+        x: 404
+        y: 117
+        z: -735
+      corner1:
+        x: 410
+        z: -791
+      corner2:
+        x: 348
+        z: -730
+version: 0

@@ -23,15 +23,14 @@
 
 package com.jkush321.autowalls;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.io.File;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.avaje.ebean.LogLevel;
 import com.jkush321.autowalls.commands.*;
 import com.jkush321.autowalls.listeners.*;
 import org.bukkit.Bukkit;
@@ -41,6 +40,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,22 +57,12 @@ public final class AutoWalls extends JavaPlugin {
 	public static List<Player> blueTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> greenTeam = new CopyOnWriteArrayList<Player>();
 	public static List<Player> orangeTeam = new CopyOnWriteArrayList<Player>();
-	public static List<Player> votedFor1 = new ArrayList<Player>();
-	public static List<Player> votedFor2 = new ArrayList<Player>();
+	public static Map<Player, Integer> votes = new HashMap<Player, Integer>();
 	public static boolean gameInProgress = false;
 	public static boolean voting = false;
     public static boolean deathmatches = true;
 	public static FileConfiguration config;
 	public static boolean gameOver = false;
-	public static int teamSize;
-	public static int[] redSpawn = new int[3];
-	public static int[] blueSpawn = new int[3];
-	public static int[] greenSpawn = new int[3];
-	public static int[] orangeSpawn = new int[3];
-    public static int[] redQuadrant = new int[4];
-    public static int[] blueQuadrant = new int[4];
-    public static int[] greenQuadrant = new int[4];
-    public static int[] orangeQuadrant = new int[4];
     public static int mapNumber;
     public static int timerTask;
 	public static int joinTimerTask;
@@ -96,17 +86,22 @@ public final class AutoWalls extends JavaPlugin {
 	public static boolean lateJoins;
 	public static boolean preventFireBeforeWallsFall;
 	public static boolean useTabApi;
+    public static int CONFIG_VERSION = 1;
+    public static boolean config_todate;
 	public static ArrayList<String> dead = new ArrayList<String>();
     private final PlayerListener PlayerListener = new PlayerListener(this);
     private final PlayerBlockListener PlayerBlockListener = new PlayerBlockListener(this);
     private final PlayerConnectionListener PlayerConnectionListener = new PlayerConnectionListener(this);
     private final ServerListener ServerListener = new ServerListener(this);
     private final WorldListener WorldListener = new WorldListener(this);
+    private static File datafolder;
+    public static Arena arena = Arena.getInstance();
 
     @Override
 	public void onEnable()
 	{
 		plugin = this;
+        datafolder = this.getDataFolder();
 
         //Register commands
 
@@ -145,7 +140,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("votes.players.jkush321", 500);
 		config.addDefault("votes.players.example_player", 2);
 		config.addDefault("priorities", true);
-		config.addDefault("team-size", 4);
 		config.addDefault("next-map", 1);
 		config.addDefault("announcements", "Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!");
 		config.addDefault("map-votes", true);
@@ -158,7 +152,6 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("full-server-message", "The server is full and your priority is not high enough!");
 		config.addDefault("priority-kick-message", "Someone with higher priority joined!");
 		config.addDefault("team-teleports", true);
-		config.addDefault("game-length-in-minutes", 15);
         config.addDefault("deathmatches", true);
         config.addDefault("time-until-deathmatch-in-minutes", 10);
 		config.addDefault("vote-link", "my-vote-link.com");
@@ -170,11 +163,14 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("prevent-fire-before-walls-fall", true);
 		config.addDefault("max-color-cycler-time", 120);
 		config.addDefault("use-tab-api", true);
+        config.addDefault("CONFIG_VERSION", 1);
 		
-		config.options().copyDefaults(true);
-	    saveConfig();	    
+		//config.options().copyDefaults(true);
+	    saveConfig();
+        ConfigurationHelper ch = ConfigurationHelper.getInstance();
+        ch.setup(this);
 
-	    mapNumber = config.getInt("next-map");
+        mapNumber = config.getInt("next-map");
 	    mapVotes = config.getBoolean("map-votes");
 	    blockSneaking = config.getBoolean("prevent-sneaking-after-walls-fall");
 	    disableHealing = config.getBoolean("disable-healing-after-walls-fall");
@@ -186,7 +182,7 @@ public final class AutoWalls extends JavaPlugin {
 	    JoinTimer.timeleft = config.getInt("seconds-before-can-join-team");
 	    teamTeleports = config.getBoolean("team-teleports");
         deathmatches = config.getBoolean("deathmatches");
-	    Timer.time=config.getInt("game-length-in-minutes") * 60;
+	    Timer.time = ch.getGameLength(config.getInt("next-map"));
 	    votelink = config.getString("vote-link");
 	    priorityPerDollar=config.getInt("priority-per-dollar");
 	    secondsBeforeTeleport=config.getInt("seconds-before-teleport");
@@ -196,98 +192,10 @@ public final class AutoWalls extends JavaPlugin {
 	    preventFireBeforeWallsFall = config.getBoolean("prevent-fire-before-walls-fall");
 	    ColorCycler.MAX_COLOR_TIME = config.getInt("max-color-cycler-time");
 	    useTabApi = config.getBoolean("use-tab-api");
+
+        arena.loadArenaSettings(mapNumber);
 	    
-	    if (mapNumber == 1)
-	    {
-            //Spawns
-
-			redSpawn[0] = 297;
-			redSpawn[1] = 118;
-			redSpawn[2] = -848;
-			
-			blueSpawn[0] = 403;
-			blueSpawn[1] = 118;
-			blueSpawn[2] = -848;
-			
-			greenSpawn[0] = 403;
-			greenSpawn[1] = 118;
-			greenSpawn[2] = -736;
-			
-			orangeSpawn[0] = 291;
-			orangeSpawn[1] = 118;
-			orangeSpawn[2] = -736;
-
-            //Quadrants
-            //xMax
-            redQuadrant[0] = 346;
-            //xMin
-            redQuadrant[1] = 286;
-            //zMax
-            redQuadrant[2] = -794;
-            //zMin
-            redQuadrant[3] = -854;
-
-            blueQuadrant[0] = 408;
-            blueQuadrant[1] = 349;
-            blueQuadrant[2] = -794;
-            blueQuadrant[3] = -854;
-
-            greenQuadrant[0] = 409;
-            greenQuadrant[1] = 349;
-            greenQuadrant[2] = -731;
-            greenQuadrant[3] = -791;
-
-            orangeQuadrant[0] = 346;
-            orangeQuadrant[1] = 286;
-            orangeQuadrant[2] = -731;
-            orangeQuadrant[3] = -791;
-
-        }
-	    else if (mapNumber == 2)
-	    {
-
-            //Spawns
-
-	    	redSpawn[0] = -857;
-			redSpawn[1] = 74;
-			redSpawn[2] = -204;
-			
-			blueSpawn[0] = -857;
-			blueSpawn[1] = 74;
-			blueSpawn[2] = -140;
-			
-			greenSpawn[0] = -729;
-			greenSpawn[1] = 74;
-			greenSpawn[2] = -140;
-			
-			orangeSpawn[0] = -729;
-			orangeSpawn[1] = 74;
-			orangeSpawn[2] = -204;
-
-            //Quadrants
-
-            redQuadrant[0] = -804;
-            redQuadrant[1] = -863;
-            redQuadrant[2] = -183;
-            redQuadrant[3] = -242;
-
-            blueQuadrant[0] = -804;
-            blueQuadrant[1] = -863;
-            blueQuadrant[2] = -103;
-            blueQuadrant[3] = -162;
-
-            greenQuadrant[0] = -724;
-            greenQuadrant[1] = -783;
-            greenQuadrant[2] = -103;
-            greenQuadrant[3] = -162;
-
-            orangeQuadrant[0] = -724;
-            orangeQuadrant[1] = -783;
-            orangeQuadrant[2] = -183;
-            orangeQuadrant[3] = -242;
-	    }
-	    
-	    teamSize = config.getInt("team-size");
+	    //teamSize = config.getInt("team-size");
 	    
 	    joinTimerTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new JoinTimer(), 0L, 20L);
 		
@@ -334,7 +242,18 @@ public final class AutoWalls extends JavaPlugin {
 
 	}
 
-	
+    public static void log(String m) {
+        logger.info(m);
+    }
+
+    public static void log(Level l, String m) {
+        logger.log(l, m);
+    }
+
+    public static File getPluginDataFolder() {
+        return datafolder;
+    }
+
 	public void joinTeam(Player p, String team)
 	{
 		if (playing.contains(p)) {p.sendMessage(ChatColor.RED + "You are already on a team!"); }
@@ -342,7 +261,7 @@ public final class AutoWalls extends JavaPlugin {
 		{
 			if (team == "red")
 			{
-				if (redTeam.size() == teamSize)
+				if (redTeam.size() == arena.teamSize)
 				{
 					p.sendMessage(ChatColor.RED + "That team is full!"); return;
 				}
@@ -350,7 +269,7 @@ public final class AutoWalls extends JavaPlugin {
 			}
 			if (team == "blue")
 			{
-				if (blueTeam.size() == teamSize)
+				if (blueTeam.size() == arena.teamSize)
 				{
 					p.sendMessage(ChatColor.RED + "That team is full!"); return;
 				}
@@ -358,7 +277,7 @@ public final class AutoWalls extends JavaPlugin {
 			}
 			if (team == "green")
 			{
-				if (greenTeam.size() == teamSize)
+				if (greenTeam.size() == arena.teamSize)
 				{
 					p.sendMessage(ChatColor.RED + "That team is full!"); return;
 				}
@@ -366,7 +285,7 @@ public final class AutoWalls extends JavaPlugin {
 			}
 			if (team == "orange")
 			{
-				if (orangeTeam.size() == teamSize)
+				if (orangeTeam.size() == arena.teamSize)
 				{
 					p.sendMessage(ChatColor.RED + "That team is full!"); return;
 				}
@@ -378,7 +297,7 @@ public final class AutoWalls extends JavaPlugin {
 			Tabs.updateAll();
 			Tags.refreshPlayer(p);
 			Bukkit.broadcastMessage(ChatColor.RED + p.getName() + " has joined the " + team + " team!");
-			int remaining = (teamSize * 4) - playing.size();
+			int remaining = (arena.teamSize * 4) - playing.size();
 			String s = "s";
 			if (remaining == 1) s = "";
 			Bukkit.broadcastMessage(ChatColor.AQUA + "There is room for " + remaining + " more player" + s + "!");
@@ -391,7 +310,8 @@ public final class AutoWalls extends JavaPlugin {
 			{
 				if (team.equals("red"))
 				{
-					p.teleport(new Location(p.getWorld(), redSpawn[0], redSpawn[1], redSpawn[2]));
+
+					p.teleport(new Location(p.getWorld(), arena.redSpawn[0], arena.redSpawn[1], arena.redSpawn[2]));
                     p.setGameMode(GameMode.SURVIVAL);
                     for (Player pl : Bukkit.getOnlinePlayers())
                     {
@@ -400,7 +320,7 @@ public final class AutoWalls extends JavaPlugin {
 				}
 				else if (team.equals("blue"))
 				{
-					p.teleport(new Location(p.getWorld(), blueSpawn[0], blueSpawn[1], blueSpawn[2]));
+					p.teleport(new Location(p.getWorld(), arena.blueSpawn[0], arena.blueSpawn[1], arena.blueSpawn[2]));
                     p.setGameMode(GameMode.SURVIVAL);
                     for (Player pl : Bukkit.getOnlinePlayers())
                     {
@@ -409,7 +329,7 @@ public final class AutoWalls extends JavaPlugin {
 				}
 				else if (team.equals("orange"))
 				{
-					p.teleport(new Location(p.getWorld(), orangeSpawn[0], orangeSpawn[1], orangeSpawn[2]));
+					p.teleport(new Location(p.getWorld(), arena.orangeSpawn[0], arena.orangeSpawn[1], arena.orangeSpawn[2]));
                     p.setGameMode(GameMode.SURVIVAL);
                     for (Player pl : Bukkit.getOnlinePlayers())
                     {
@@ -418,7 +338,7 @@ public final class AutoWalls extends JavaPlugin {
 				}
 				else if (team.equals("green"))
 				{
-					p.teleport(new Location(p.getWorld(), greenSpawn[0], greenSpawn[1], greenSpawn[2]));
+					p.teleport(new Location(p.getWorld(), arena.greenSpawn[0], arena.greenSpawn[1], arena.greenSpawn[2]));
                     p.setGameMode(GameMode.SURVIVAL);
                     for (Player pl : Bukkit.getOnlinePlayers())
                     {
@@ -463,22 +383,22 @@ public final class AutoWalls extends JavaPlugin {
 		if (!redTeam.isEmpty())
 			for (Player p : redTeam)
 			{
-				p.teleport(new Location(p.getWorld(),redSpawn[0],redSpawn[1],redSpawn[2]));
+				p.teleport(new Location(p.getWorld(),arena.redSpawn[0],arena.redSpawn[1],arena.redSpawn[2]));
 			}
 		if (!blueTeam.isEmpty())
 			for (Player p : blueTeam)
 			{
-				p.teleport(new Location(p.getWorld(),blueSpawn[0],blueSpawn[1],blueSpawn[2]));
+				p.teleport(new Location(p.getWorld(),arena.blueSpawn[0],arena.blueSpawn[1],arena.blueSpawn[2]));
 			}
 		if (!greenTeam.isEmpty())
 			for (Player p : greenTeam)
 			{
-				p.teleport(new Location(p.getWorld(),greenSpawn[0],greenSpawn[1],greenSpawn[2]));
+				p.teleport(new Location(p.getWorld(),arena.greenSpawn[0],arena.greenSpawn[1],arena.greenSpawn[2]));
 			}
 		if (!orangeTeam.isEmpty())
 			for (Player p : orangeTeam)
 			{
-				p.teleport(new Location(p.getWorld(),orangeSpawn[0],orangeSpawn[1],orangeSpawn[2]));
+				p.teleport(new Location(p.getWorld(),arena.orangeSpawn[0],arena.orangeSpawn[1],arena.orangeSpawn[2]));
 			}
 		for (Player p : playing)
 		{
@@ -521,8 +441,14 @@ public final class AutoWalls extends JavaPlugin {
 			Bukkit.broadcastMessage(ChatColor.DARK_RED + "The " + team + " team has won the game!");
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Winning Players:  "+ ChatColor.DARK_GREEN + players);
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "It is time to vote for the next map!");
+            ConfigurationHelper ch = ConfigurationHelper.getInstance();
+            int maps = ch.getNumberOfArenas();
+            for (Integer i = 1; i <= maps; i++) {
+                Bukkit.broadcastMessage(ChatColor.YELLOW + i.toString() + " - " + ch.getArenaName(i.intValue()) + " - by " + ch.getArenaAuthor(i.intValue()) + ".");
+            }
+            /* Old Code - Subject for removal
 			Bukkit.broadcastMessage(ChatColor.YELLOW + "1 - The Walls   - by Hypixel - Modified by staff team");
-			Bukkit.broadcastMessage(ChatColor.YELLOW + "2 - The Walls 2 - by Hypixel - Modified by staff team");
+			Bukkit.broadcastMessage(ChatColor.YELLOW + "2 - The Walls 2 - by Hypixel - Modified by staff team");*/
 			Bukkit.broadcastMessage(ChatColor.GRAY + "Type the number you want in chat. Vote will last 30 seconds");
 			
 			voting = true;
@@ -637,4 +563,11 @@ public final class AutoWalls extends JavaPlugin {
 		if (dead.contains(name)) dead.remove(name);
 		Tabs.updateAll();
 	}
+    public static Integer parseInt(String text) {
+        try {
+            return new Integer(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

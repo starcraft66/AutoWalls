@@ -153,7 +153,7 @@ public class WorldListener implements Listener {
                     i--;
                 }
             } else {
-                Bukkit.getLogger().severe("Invaid map number!");
+                AutoWalls.log("Invaid map number!");
             }
         }
     }

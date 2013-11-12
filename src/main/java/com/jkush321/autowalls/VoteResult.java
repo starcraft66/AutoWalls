@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -49,24 +51,52 @@ public class VoteResult implements Runnable {
 		try {
 			AutoWalls.voting = false;
 			Bukkit.broadcastMessage(ChatColor.DARK_RED + "The votes are in...");
+            /* Old Code - Subject for removal
 			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "1 - " + AutoWalls.votedFor1.size());
-			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "2 - " + AutoWalls.votedFor2.size());
+			Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "2 - " + AutoWalls.votedFor2.size());*/
+            Map<Integer, Integer> mostPopularMaps = new HashMap<Integer, Integer>();
+            Integer freq = 0;
+			for (Integer i : AutoWalls.votes.values()) {
+                if (mostPopularMaps.get(i) != null) {
+                    freq = mostPopularMaps.get(i) + 1;
+                    mostPopularMaps.put(i, freq);
+                } else {
+                    mostPopularMaps.put(i, 1);
+                }
+            }
 
-			if (AutoWalls.votedFor1.size()!=AutoWalls.votedFor2.size())
-			{
-				if (AutoWalls.votedFor1.size() > AutoWalls.votedFor2.size())
-				{
-					AutoWalls.config.set("next-map", 1);
-				}
-				else
-				{
-					AutoWalls.config.set("next-map", 2);
-				}
-			}
-			else
-			{
+            ConfigurationHelper ch = ConfigurationHelper.getInstance();
+            int maps = ch.getNumberOfArenas();
+            for (int i = 1; i <= maps; i++) {
+                Bukkit.broadcastMessage(ChatColor.DARK_AQUA + ch.getArenaName(i) + " - " + ((mostPopularMaps.get(i) !=  null) ? mostPopularMaps.get(i) : "0"));
+            }
+
+            Map.Entry<Integer, Integer> maxEntry = null;
+            Boolean randomMap = false;
+            for (Map.Entry<Integer, Integer> entry : mostPopularMaps.entrySet())
+            {
+                if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+                {
+                    if (maxEntry == entry) {
+                        randomMap = true;
+                    }else {
+                        maxEntry = entry;
+                    }
+                }
+                if (randomMap) {
+                    break;
+                }
+            }
+            if (!randomMap) {
+                if (maxEntry != null) {
+                    AutoWalls.config.set("next-map", maxEntry.getKey());
+                } else {
+                    Random r = new Random();
+                    AutoWalls.config.set("next-map", r.nextInt(ch.getNumberOfArenas()) + 1);
+                }
+            } else {
 				Random r = new Random();
-				AutoWalls.config.set("next-map", r.nextInt(2) + 1);
+				AutoWalls.config.set("next-map", r.nextInt(ch.getNumberOfArenas()) + 1);
 			}
 			emptyFolder(new File("custom"));
 			(new File("custom")).delete();
@@ -75,7 +105,7 @@ public class VoteResult implements Runnable {
 			
 			for (Player p : Bukkit.getOnlinePlayers())
 			{
-				p.kickPlayer(ChatColor.RED + "Next game: The Walls " + (AutoWalls.config.getInt("next-map")) + ChatColor.AQUA + " Reconnect and type /join to get in a game.");
+				p.kickPlayer(ChatColor.YELLOW + "Next game: " + ChatColor.DARK_AQUA + ch.getArenaName(AutoWalls.config.getInt("next-map"))  + ChatColor.YELLOW + " Reconnect and type /join to get in a game.");
 			}
             //Leave my hub kick plugin some time to send all players to the lobby!
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new BukkitRunnable() {

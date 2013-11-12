@@ -27,15 +27,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class Timer extends BukkitRunnable{
 
     public static int time;
     public static int timeDeathmatch;
-    public static boolean Dropping;
     public static boolean Dropped;
 
     private AutoWalls plugin;
@@ -48,152 +47,25 @@ public class Timer extends BukkitRunnable{
 
 			if (AutoWalls.gameInProgress)
 			{
+                Countdown();
                 time--;
-                timeDeathmatch--;
-				if (time==50*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				if (time==40*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				if (time==30*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				if (time==20*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				if (time==10*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				else if (time==5*60)
-				{
-					announceCountdown("There are", "minutes remaining, all players have recieved 2 beef!");
-					ItemStack beef = new ItemStack(Material.COOKED_BEEF, 2);
-					for (Player p : AutoWalls.playing)
-					{
-						p.getInventory().addItem(beef);
-					}
-				}
-				else if (time==3*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				else if (time==2*60)
-				{
-					announceCountdown("There are", "minutes remaining!");
-				}
-				else if (time==60)
-				{
-					announceCountdown("There is", "minute remaining!");
-				}
-				else if (time==30)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==10)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==9)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==8)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==7)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==6)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==5)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==4)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==3)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==2)
-				{
-					announceCountdown("There are", "seconds remaining!");
-				}
-				else if (time==1)
-				{
-					announceCountdown("There is", "second remaining!");
-				}
-				else if (time==0)
-				{
-                    dropWalls();
-                    timeDeathmatch = AutoWalls.config.getInt("time-until-deathmatch-in-minutes") * 60;
-				}
-                else if (time < 1 && time > -30) {
-                    Dropping = true;
-                }
-                else if (time < -30){
-                    Dropping = false;
-                    if (!AutoWalls.deathmatches) {
-                        Bukkit.getScheduler().cancelTask(AutoWalls.timerTask);
-                    }
-                }
-                else if (timeDeathmatch == 5*60) {
-                    announceDeathmatch("minutes.");
-                }
-                else if (timeDeathmatch == 1*60) {
-                    announceDeathmatch("minute.");
-                }
-                else if (timeDeathmatch == 15) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 10) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 5) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 4) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 3) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 2) {
-                    announceDeathmatch("seconds.");
-                }
-                else if (timeDeathmatch == 1) {
-                    announceDeathmatch("second.");
-                }
-                else if (timeDeathmatch == 0) {
-                    deathmatch();
-                    Bukkit.getScheduler().cancelTask(AutoWalls.timerTask);
-                }
-
 			}
 
 		}
 
-    public void announceCountdown(final String prefix, final  String suffix)
+    public void Countdown()
 	{
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,new Runnable() {
             @Override
             public void run() {
-                if (time >= 60) {
-                    Bukkit.broadcastMessage(ChatColor.DARK_RED + prefix + " " + ChatColor.YELLOW + Timer.time/60 + ChatColor.DARK_RED + " " + suffix);
-                } else {
-                Bukkit.broadcastMessage(ChatColor.DARK_RED + prefix + " " + ChatColor.YELLOW + Timer.time + ChatColor.DARK_RED + " " + suffix);
+                if (time >= 60 && time % 60 == 0) {
+                    Integer mins = time/60;
+                    Bukkit.broadcastMessage(ChatColor.DARK_RED + "The walls drop in " + mins.toString() + " minutes!");
+                } else if (time == 30 || time == 15 || time == 10 || time == 5 || time == 4 || time == 3 || time == 2 || time == 1) {
+                    Bukkit.broadcastMessage(ChatColor.DARK_RED + "The walls drop in " + time + " seconds!");
+                } else if (time == 0) {
+                    dropWalls();
+                    Bukkit.getScheduler().cancelTask(AutoWalls.timerTask);
                 }
             }
         });
@@ -217,36 +89,17 @@ public class Timer extends BukkitRunnable{
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-                if (AutoWalls.mapNumber==1)
-                {
-                    new Location(AutoWalls.playing.get(0).getWorld(), 409, 108, -787).getBlock().setType(Material.BEDROCK);
-                    new Location(AutoWalls.playing.get(0).getWorld(), 353, 108, -855).getBlock().setType(Material.BEDROCK);
-                    new Location(AutoWalls.playing.get(0).getWorld(), 285, 108, -799).getBlock().setType(Material.BEDROCK);
-                    new Location(AutoWalls.playing.get(0).getWorld(), 341, 108, -731).getBlock().setType(Material.BEDROCK);
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            new Location(AutoWalls.playing.get(0).getWorld(), 409, 110, -787).getBlock().setType(Material.BEDROCK);
-                            new Location(AutoWalls.playing.get(0).getWorld(), 353, 110, -855).getBlock().setType(Material.BEDROCK);
-                            new Location(AutoWalls.playing.get(0).getWorld(), 285, 110, -799).getBlock().setType(Material.BEDROCK);
-                            new Location(AutoWalls.playing.get(0).getWorld(), 341, 110, -731).getBlock().setType(Material.BEDROCK);
-                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "DOWN WITH THE WALLS");
-                        }
-                    }, 20L);
-                }
-                else
-                {
-                    new Location(AutoWalls.playing.get(0).getWorld(), -794, 20, -173).getBlock().setType(Material.REDSTONE_TORCH_ON);
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            new Location(AutoWalls.playing.get(0).getWorld(), -794, 20, -173).getBlock().setType(Material.AIR);
-
-                            Bukkit.broadcastMessage(ChatColor.DARK_RED + "DOWN WITH THE WALLS");
-                        }
-                }, 20L);
-
-                }
+                Bukkit.broadcastMessage(ChatColor.DARK_RED + "The walls are falling!");
+                Arena arena = Arena.getInstance();
+                final Block redstoneActivator = new Location(Bukkit.getWorlds().get(0),arena.redstoneCircuitActivator[0],arena.redstoneCircuitActivator[1],arena.redstoneCircuitActivator[2]).getBlock();
+                final Material formerBlock = redstoneActivator.getType();
+                redstoneActivator.setType(Material.REDSTONE_BLOCK);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        redstoneActivator.setType(formerBlock);
+                    }
+                },20L);
             }
         });
         Dropped = true;

@@ -1,0 +1,39 @@
+votes:
+  players:
+    jkush321: 500
+    example_player: 2
+priorities: true
+next-map: 1
+announcements: Seperate Announements With SemiColons;You should have at least 2 messages;Your message here!
+map-votes: true
+prevent-sneaking-after-walls-fall: true
+disable-healing-after-walls-fall: true
+rare-lightning-strike-on-arrow-land: true
+one-in-blank-chance-of-lightning: 250
+seconds-before-can-join-team: 60
+grave-messages:
+- He was loved
+- Loved by many
+- Will be missed
+- Died young
+- In our hearts
+- Has been lost
+- All gone now
+- Will be mourned
+- Had a good life
+- Withered away
+full-server-message: The server is full and your priority is not high enough!
+priority-kick-message: Someone with higher priority joined!
+team-teleports: true
+deathmatches: true
+time-until-deathmatch-in-minutes: 10
+vote-link: my-vote-link.com
+priority-per-dollar: 5
+seconds-before-teleport: 3
+early-join-priority: 1
+late-join-priority: 25
+late-joins: true
+prevent-fire-before-walls-fall: true
+max-color-cycler-time: 120
+use-tab-api: true
+CONFIG_VERSION: 1

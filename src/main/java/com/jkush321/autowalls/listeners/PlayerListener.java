@@ -21,6 +21,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Random;
+import java.util.logging.Level;
 
 public class PlayerListener implements Listener {
 
@@ -81,32 +82,32 @@ public class PlayerListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e)
     {
         AutoWalls.setLastEventToNow(e.getPlayer());
-        if (Timer.Dropping && (e.getMessage().toLowerCase().contains(" lag") || e.getMessage().toLowerCase().startsWith("lag")))
+        if (AutoWalls.voting)
         {
-            e.setCancelled(true);
-            e.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Please do not send messages about lag while the walls are falling ;)");
-        }
-        else if (AutoWalls.voting)
-        {
-            if (e.getMessage().trim().length() == 1)
+            ConfigurationHelper ch = ConfigurationHelper.getInstance();
+            int i = ch.getNumberOfArenas();
+            if (e.getMessage().trim().length() <= i)
             {
-                if (e.getMessage().trim().equals("1"))
-                {
-                    if (AutoWalls.votedFor1.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "You have already voted for that map!"); e.setCancelled(true); return; }
-                    if (AutoWalls.votedFor2.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "Your vote for map 2 has been deleted!"); AutoWalls.votedFor2.remove(e.getPlayer()); }
-                    AutoWalls.votedFor1.add(e.getPlayer());
-                    e.getPlayer().sendMessage(ChatColor.GRAY + "You have successfully voted for map 1!");
-                    e.setCancelled(true);
+                if (AutoWalls.parseInt(e.getMessage().trim()) != null) {
+                    int mn = AutoWalls.parseInt(e.getMessage().trim());
+                    if (AutoWalls.votes.get(e.getPlayer()) != null) {
+                        if (AutoWalls.votes.get(e.getPlayer()) == mn) {
+                            e.getPlayer().sendMessage(ChatColor.GRAY + "You have already voted for that map!");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        e.getPlayer().sendMessage(ChatColor.GRAY + "Your previous vote for has been deleted, you have now voted for map " + mn + "!");
+                        AutoWalls.votes.put(e.getPlayer(), mn);
+                        return;
+                    }
+                    if (ch.getArenaName(mn) != null) {
+                        AutoWalls.votes.put(e.getPlayer(), mn);
+                        e.getPlayer().sendMessage(ChatColor.GRAY + "You have successfully voted for map " + mn + "!");
+                        e.setCancelled(true);
+                    } else {
+                        e.getPlayer().sendMessage(ChatColor.GRAY + "Invalid map number!");
+                    }
                 }
-                else if (e.getMessage().trim().equals("2"))
-                {
-                    if (AutoWalls.votedFor2.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "You have already voted for that map!"); e.setCancelled(true); return; }
-                    if (AutoWalls.votedFor1.contains(e.getPlayer())) { e.getPlayer().sendMessage(ChatColor.GRAY + "Your vote for map 1 has been deleted!"); AutoWalls.votedFor1.remove(e.getPlayer()); }
-                    AutoWalls.votedFor2.add(e.getPlayer());
-                    e.getPlayer().sendMessage(ChatColor.GRAY + "You have successfully voted for map 2!");
-                    e.setCancelled(true);
-                }
-                else e.getPlayer().sendMessage(ChatColor.GRAY + "Invalid input, type a 1 or a 2.");
             }
         }
 
@@ -152,18 +153,6 @@ public class PlayerListener implements Listener {
 
         if (!AutoWalls.playing.contains(p) && AutoWalls.playing.contains(damager)) { damager.sendMessage(ChatColor.RED + "There is a spectator there, don't hurt it"); e.setCancelled(true); return; }
         if (!AutoWalls.playing.contains(damager) && AutoWalls.playing.contains(p)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Are Not In This Fight!"); return; }
-
-        if (!AutoWalls.playing.contains(p) && !AutoWalls.playing.contains(damager))
-        {
-			/*if (p.getLocation().getBlockX() <= 357 && p.getLocation().getBlockX() >= 337 && p.getLocation().getBlockZ() >= -804 && p.getLocation().getBlockZ() <= -782 && p.getLocation().getBlockY() >= 152 && p.getLocation().getBlockY() <= 155)
-			{
-				if (damager.getLocation().getBlockX() <= 357 && damager.getLocation().getBlockX() >= 337 && damager.getLocation().getBlockZ() >= -804 && damager.getLocation().getBlockZ() <= -782 && damager.getLocation().getBlockY() >= 152 && damager.getLocation().getBlockY() <= 155)
-				{
-					return;
-				}
-			}*/
-            e.setCancelled(true); //damager.sendMessage("�cIf you want to fight do it in the area above spawn");
-        }
 
         if (AutoWalls.redTeam.contains(p) && AutoWalls.redTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
         if (AutoWalls.blueTeam.contains(p) && AutoWalls.blueTeam.contains(damager)) { e.setCancelled(true); damager.sendMessage(ChatColor.RED + "You Can Not Team Kill!"); return; }
@@ -329,31 +318,43 @@ public class PlayerListener implements Listener {
                 if (AutoWalls.playing.contains(p)) {
                     //Only affect players
                     if(AutoWalls.redTeam.contains(p)) {
-                        if (e.getTo().getX() > AutoWalls.redQuadrant[0] || e.getTo().getX() < AutoWalls.redQuadrant[1] || e.getTo().getZ() > AutoWalls.redQuadrant[2] || e.getTo().getZ() < AutoWalls.redQuadrant[3]) {
-                            p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                            p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                        if (e.getTo().getX() > AutoWalls.arena.redQuadrant[0]
+                                || e.getTo().getZ() > AutoWalls.arena.redQuadrant[1]
+                                || e.getTo().getX() < AutoWalls.arena.redQuadrant[2]
+                                || e.getTo().getZ() < AutoWalls.arena.redQuadrant[3]) {
+                            e.setCancelled(true);
+                            p.teleport(e.getFrom());
                         }
 
                     }
                     else if (AutoWalls.blueTeam.contains(p)) {
-                        if (e.getTo().getX() > AutoWalls.blueQuadrant[0] || e.getTo().getX() <  AutoWalls.blueQuadrant[1] || e.getTo().getZ() > AutoWalls.blueQuadrant[2] || e.getTo().getZ() < AutoWalls.blueQuadrant[3]) {
-                            p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                            p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                        if (e.getTo().getX() > AutoWalls.arena.blueQuadrant[0]
+                                || e.getTo().getZ() >  AutoWalls.arena.blueQuadrant[1]
+                                || e.getTo().getX() < AutoWalls.arena.blueQuadrant[2]
+                                || e.getTo().getZ() < AutoWalls.arena.blueQuadrant[3]) {
+                            e.setCancelled(true);
+                            p.teleport(e.getFrom());
                         }
 
                     }
                     else if (AutoWalls.greenTeam.contains(p)) {
-                        if (e.getTo().getX() > AutoWalls.greenQuadrant[0] || e.getTo().getX() < AutoWalls.greenQuadrant[1] || e.getTo().getZ() > AutoWalls.greenQuadrant[2] || e.getTo().getZ() < AutoWalls.greenQuadrant[3]) {
-                            p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                            p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                        if (e.getTo().getX() > AutoWalls.arena.greenQuadrant[0]
+                                || e.getTo().getZ() > AutoWalls.arena.greenQuadrant[1]
+                                || e.getTo().getX() < AutoWalls.arena.greenQuadrant[2]
+                                || e.getTo().getZ() < AutoWalls.arena.greenQuadrant[3]) {
+                            e.setCancelled(true);
+                            p.teleport(e.getFrom());
                         }
 
                     }
                     else if (AutoWalls.orangeTeam.contains(p)) {
 
-                        if (e.getTo().getX() > AutoWalls.orangeQuadrant[0] || e.getTo().getX() < AutoWalls.orangeQuadrant[1] || e.getTo().getZ() > AutoWalls.orangeQuadrant[2] || e.getTo().getZ() < AutoWalls.orangeQuadrant[3]) {
-                            p.sendMessage(ChatColor.RED + "You cannot leave your quadrant now!");
-                            p.teleport(new Location(e.getFrom().getWorld(),e.getFrom().getX(),e.getFrom().getY(),e.getFrom().getZ(),e.getFrom().getYaw(),e.getFrom().getPitch()));
+                        if (e.getTo().getX() > AutoWalls.arena.orangeQuadrant[0]
+                                || e.getTo().getZ() > AutoWalls.arena.orangeQuadrant[1]
+                                || e.getTo().getX() < AutoWalls.arena.orangeQuadrant[2]
+                                || e.getTo().getZ() < AutoWalls.arena.orangeQuadrant[3]) {
+                            e.setCancelled(true);
+                            p.teleport(e.getFrom());
                         }
 
                     }
