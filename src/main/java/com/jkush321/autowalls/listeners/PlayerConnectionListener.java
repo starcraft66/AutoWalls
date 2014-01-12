@@ -1,13 +1,7 @@
 package com.jkush321.autowalls.listeners;
 
-import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.Tabs;
-import com.jkush321.autowalls.Tags;
-import com.jkush321.autowalls.UpdateChecker;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import com.jkush321.autowalls.*;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,6 +36,8 @@ public class PlayerConnectionListener implements Listener {
             UpdateChecker.checkAndSendMessage(e.getPlayer());
         }
         Tabs.addPlayer(e.getPlayer());
+        Arena arena = Arena.getInstance();
+        e.getPlayer().teleport(new Location(Bukkit.getWorlds().get(0),arena.lobbySpawn[0],arena.lobbySpawn[1],arena.lobbySpawn[2]));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

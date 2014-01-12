@@ -16,6 +16,7 @@ public class Arena {
     public double[] blueQuadrant = new double[4];
     public double[] greenQuadrant = new double[4];
     public double[] orangeQuadrant = new double[4];
+    public double[] lobbySpawn = new double[3];
     public double[] mapLimits = new double[4];
     public double[] redstoneCircuitActivator = new double[3];
 
@@ -106,6 +107,12 @@ public class Arena {
         redstoneCircuitActivator[0] = ch.getRedstoneActivator(arenaid).getX();
         redstoneCircuitActivator[1] = ch.getRedstoneActivator(arenaid).getY();
         redstoneCircuitActivator[2] = ch.getRedstoneActivator(arenaid).getZ();
+
+        //Spawn
+
+        lobbySpawn[0] = ch.getLobbySpawn(arenaid).getX();
+        lobbySpawn[1] = ch.getLobbySpawn(arenaid).getY();
+        lobbySpawn[2] = ch.getLobbySpawn(arenaid).getZ();
 
     }
 
