@@ -101,6 +101,7 @@ public class VoteResult implements Runnable {
 			emptyFolder(new File("custom"));
 			(new File("custom")).delete();
 			plugin.saveConfig();
+            AutoWalls.log("Copying " + new File("custom" + AutoWalls.config.getInt("next-map")).getName());
 			copyFolder(new File("custom" + AutoWalls.config.getInt("next-map")), new File("custom"));
 			
 			for (Player p : Bukkit.getOnlinePlayers())
@@ -114,7 +115,6 @@ public class VoteResult implements Runnable {
                     Bukkit.shutdown();
                 }
             }, 40L);
-			Bukkit.shutdown();
 		}
 		catch (Exception e)
 		{

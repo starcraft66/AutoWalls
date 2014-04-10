@@ -42,6 +42,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -137,7 +138,7 @@ public final class AutoWalls extends JavaPlugin {
         getServer().getPluginManager().registerEvents(ServerListener, this);
 		config = getConfig();
 
-		config.addDefault("votes.players.jkush321", 500);
+		/*config.addDefault("votes.players.jkush321", 500);
 		config.addDefault("votes.players.example_player", 2);
 		config.addDefault("priorities", true);
 		config.addDefault("next-map", 1);
@@ -163,7 +164,7 @@ public final class AutoWalls extends JavaPlugin {
 		config.addDefault("prevent-fire-before-walls-fall", true);
 		config.addDefault("max-color-cycler-time", 120);
 		config.addDefault("use-tab-api", true);
-        config.addDefault("CONFIG_VERSION", 1);
+        config.addDefault("CONFIG_VERSION", 1);*/
 		
 		//config.options().copyDefaults(true);
 	    saveConfig();
@@ -208,6 +209,7 @@ public final class AutoWalls extends JavaPlugin {
 		
 		Grenades.init();
 		KitManager.fillKits();
+        Tabs.updateAll();
 		
 		if (Bukkit.getPluginManager().getPlugin("TagAPI")!= null)
 		{
@@ -215,16 +217,18 @@ public final class AutoWalls extends JavaPlugin {
 			Tags.useTagAPI=true;
 			logger.info("[AutoWalls] Successfully hooked into TagAPI!");
 		}
-		if (Bukkit.getPluginManager().getPlugin("TabAPI")!=null)
+		if (useTabApi)
 		{
-			useTabApi=true;
-            logger.info("[AutoWalls] Successfully hooked into TabAPI!");
+            if (Bukkit.getPluginManager().getPlugin("TabAPI")!=null) {
+                useTabApi=true;
+                log("[AutoWalls] Successfully hooked into TabAPI!");
+            } else {
+                log(Level.SEVERE, "[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config! Disabling TabAPI features.");
+                useTabApi = false;
+            }
+
 		}
-		else if (useTabApi)
-		{
-            logger.severe("[AutoWalls] Error! TabAPI is not installed but it was set to be used in the config! Disabling TabAPI features.");
-			useTabApi = false;
-		}
+
 
         //Cancel weather cause no one likes rain ;-)
 
@@ -252,6 +256,33 @@ public final class AutoWalls extends JavaPlugin {
 
     public static File getPluginDataFolder() {
         return datafolder;
+    }
+
+    public void resetPlayer(final Player p) {
+        if (AutoWalls.playing.contains(p)) {
+            AutoWalls.addDeadPlayer(p.getName());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.teleport(new Location(Bukkit.getWorlds().get(0), arena.lobbySpawn[0], arena.lobbySpawn[1], arena.lobbySpawn[2]));
+                }
+            }.runTaskLater(this, 20L);
+            if (AutoWalls.redTeam.contains(p)) AutoWalls.redTeam.remove(p);
+            if (AutoWalls.blueTeam.contains(p)) AutoWalls.blueTeam.remove(p);
+            if (AutoWalls.greenTeam.contains(p)) AutoWalls.greenTeam.remove(p);
+            if (AutoWalls.orangeTeam.contains(p)) AutoWalls.orangeTeam.remove(p);
+            if (TeamChat.teamChatting.contains(p)) TeamChat.teamChatting.remove(p);
+            AutoWalls.playing.remove(p);
+        }
+
+        checkStats();
+        Tags.refreshPlayer(p);
+        Tabs.updateAll();
+        p.getInventory().clear();
+        p.getInventory().setArmorContents(null);
+        p.setHealth(20);
+        p.setFoodLevel(20);
+        p.setFlying(false);
     }
 
 	public void joinTeam(Player p, String team)
@@ -433,7 +464,7 @@ public final class AutoWalls extends JavaPlugin {
 		gameOver=true;
 		for (Player p : playing)
 		{
-			p.setHealth(0);
+			resetPlayer(p);
 			Tags.refreshPlayer(p);
 		}
 		if (mapVotes)

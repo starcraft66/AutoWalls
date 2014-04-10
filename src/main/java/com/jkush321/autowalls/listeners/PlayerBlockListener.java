@@ -67,7 +67,11 @@ public class PlayerBlockListener implements Listener {
                             }
                         }
                     }
+                } else {
+                    e.setCancelled(true);
                 }
+            } else {
+                e.setCancelled(true);
             }
         }
 
@@ -125,7 +129,11 @@ public class PlayerBlockListener implements Listener {
                             }
                         }
                     }
+                } else {
+                    e.setCancelled(true);
                 }
+            } else {
+                e.setCancelled(true);
             }
         }
     }

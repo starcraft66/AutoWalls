@@ -1,6 +1,7 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
+import com.jkush321.autowalls.Tabs;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -23,8 +24,9 @@ public class LeaveCommand implements CommandExecutor {
         {
             if (plugin.playing.contains((Player) cmdSender)){
                 Bukkit.broadcastMessage(ChatColor.YELLOW + cmdSender.getName() + ChatColor.DARK_RED + " has left the game!");
-                ((Player) cmdSender).setHealth(0);
+                plugin.resetPlayer((Player) cmdSender);
                 plugin.leaveTeam((Player) cmdSender);
+                Tabs.updateAll();
             }
             else cmdSender.sendMessage(ChatColor.DARK_RED + "You aren't on a team");
         }

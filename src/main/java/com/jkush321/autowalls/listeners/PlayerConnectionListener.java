@@ -38,6 +38,11 @@ public class PlayerConnectionListener implements Listener {
         Tabs.addPlayer(e.getPlayer());
         Arena arena = Arena.getInstance();
         e.getPlayer().teleport(new Location(Bukkit.getWorlds().get(0),arena.lobbySpawn[0],arena.lobbySpawn[1],arena.lobbySpawn[2]));
+        e.getPlayer().getInventory().clear();
+        e.getPlayer().getInventory().setArmorContents(null);
+        e.getPlayer().setHealth(20);
+        e.getPlayer().setFoodLevel(20);
+        e.getPlayer().setFlying(false);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -87,6 +92,8 @@ public class PlayerConnectionListener implements Listener {
             e.disallow(PlayerLoginEvent.Result.KICK_FULL, AutoWalls.fullKickMessage);
         }
 
+        Tabs.updateAll();
+
         e.getPlayer().getInventory().clear();
         e.getPlayer().getInventory().setArmorContents(new ItemStack[]{new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
 
@@ -95,8 +102,8 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent e)
     {
-        if (AutoWalls.playing.contains(e.getPlayer()) && AutoWalls.gameInProgress) e.getPlayer().setHealth(0);
-        else if (AutoWalls.playing.contains(e.getPlayer()) && !AutoWalls.gameInProgress) plugin.leaveTeam(e.getPlayer());
+        plugin.resetPlayer(e.getPlayer());
+        if (AutoWalls.playing.contains(e.getPlayer()) && !AutoWalls.gameInProgress) plugin.leaveTeam(e.getPlayer());
         if (AutoWalls.getLastEvent(e.getPlayer()) != 0) AutoWalls.lastEvent.remove(e.getPlayer());
         plugin.checkStats();
         Tags.refreshPlayer(e.getPlayer());

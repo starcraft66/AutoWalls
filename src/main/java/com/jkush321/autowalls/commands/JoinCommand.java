@@ -26,7 +26,7 @@ public class JoinCommand implements CommandExecutor {
             boolean allowed = false;
             if (plugin.config.getInt("votes.players." + p.getName()) >= plugin.earlyJoinPriority && !plugin.gameInProgress) { allowed = true; }
             if (plugin.canJoin && !plugin.gameInProgress && !plugin.gameOver){ allowed = true; }
-            if (plugin.playing.size()<plugin.arena.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0) { allowed = true; }
+            if (plugin.playing.size()<plugin.arena.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0 && !plugin.dead.contains(p.getName())) { allowed = true; }
             if (!allowed)
             {
                 cmdSender.sendMessage(ChatColor.DARK_RED + "You can not join the game at this time!");

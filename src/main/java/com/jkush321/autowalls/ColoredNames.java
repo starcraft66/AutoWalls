@@ -26,11 +26,11 @@ package com.jkush321.autowalls;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.kitteh.tag.PlayerReceiveNameTagEvent;
+import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
 
 public class ColoredNames implements Listener {
 	@EventHandler
-	public void onNameTag(PlayerReceiveNameTagEvent event) {
+	public void onNameTag(AsyncPlayerReceiveNameTagEvent event) {
 		if (AutoWalls.playing.contains(event.getNamedPlayer()))
 		{
 			if (AutoWalls.redTeam.contains(event.getNamedPlayer()))

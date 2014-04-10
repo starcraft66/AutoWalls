@@ -73,7 +73,7 @@ public class PlayerListener implements Listener {
         {
             if (AutoWalls.playing.contains((Player) e.getEntity()) && AutoWalls.disableHealing && Timer.time<=0) {
                 Random r = new Random();
-                e.setAmount(r.nextInt( (20 - ((Player)e.getEntity()).getHealth()) / 2 ));
+                e.setAmount(r.nextInt((int) (20 - ((Player)e.getEntity()).getHealth() / 2 )));
             }
         }
     }
@@ -176,7 +176,7 @@ public class PlayerListener implements Listener {
     {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
         {
-            if (e.getClickedBlock().getType() == Material.SIGN || e.getClickedBlock().getType() == Material.SIGN_POST)
+            if (e.getClickedBlock().getType() == Material.WALL_SIGN || e.getClickedBlock().getType() == Material.SIGN || e.getClickedBlock().getType() == Material.SIGN_POST)
             {
                 Sign s = (Sign) e.getClickedBlock().getState();
                 SignUI.onClick(e.getPlayer(), s.getLine(0), s.getLine(1), s.getLine(2), s.getLine(3));
@@ -293,14 +293,17 @@ public class PlayerListener implements Listener {
                 Tags.refreshPlayer(e.getEntity());
                 AutoWalls.addDeadPlayer(e.getEntity().getName());
                 Tabs.updateAll();
+                plugin.resetPlayer(e.getEntity());
             }
         } catch (Exception ex) { ex.printStackTrace(); }
+        Tabs.updateAll();
     }
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e)
     {
         if (AutoWalls.gameInProgress) plugin.spectate(e.getPlayer());
+        plugin.resetPlayer(e.getPlayer());
     }
 
     @EventHandler

@@ -1,6 +1,7 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
+import com.jkush321.autowalls.ConfigurationHelper;
 import com.jkush321.autowalls.Timer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
