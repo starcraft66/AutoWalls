@@ -35,5 +35,5 @@ late-join-priority: 25
 late-joins: true
 prevent-fire-before-walls-fall: true
 max-color-cycler-time: 120
-use-tab-api: true
-CONFIG_VERSION: 1
+version: 1
+

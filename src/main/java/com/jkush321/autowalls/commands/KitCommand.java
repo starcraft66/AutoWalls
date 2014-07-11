@@ -1,7 +1,6 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.JoinTimer;
 import com.jkush321.autowalls.kits.Kit;
 import com.jkush321.autowalls.kits.KitManager;
 import org.bukkit.ChatColor;
@@ -23,7 +22,7 @@ public class KitCommand implements CommandExecutor {
 
         if (cmdSender instanceof Player) {
             if (args.length == 1) {
-                if (JoinTimer.timeleft > 0 || !plugin.gameInProgress) {
+                if (!plugin.gameInProgress) {
 
                     if (KitManager.findKit(args[0]) != null) {
                         Kit k = KitManager.findKit(args[0]);

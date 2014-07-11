@@ -18,42 +18,38 @@ public class JoinCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
-
-
         if (cmdSender instanceof Player)
         {
             Player p = (Player) cmdSender;
             boolean allowed = false;
-            if (plugin.config.getInt("votes.players." + p.getName()) >= plugin.earlyJoinPriority && !plugin.gameInProgress) { allowed = true; }
-            if (plugin.canJoin && !plugin.gameInProgress && !plugin.gameOver){ allowed = true; }
-            if (plugin.playing.size()<plugin.arena.teamSize*4 && plugin.config.getInt("votes.players." + p.getName()) >= plugin.lateJoinPriority && Timer.time > 0 && !plugin.dead.contains(p.getName())) { allowed = true; }
+            if (!plugin.gameInProgress && !plugin.gameOver && plugin.playing.contains(p) && (p.hasPermission("walls.donor")|| p.isOp() || p.hasPermission("walls.op"))){ allowed = true; }
             if (!allowed)
             {
-                cmdSender.sendMessage(ChatColor.DARK_RED + "You can not join the game at this time!");
+                cmdSender.sendMessage(ChatColor.DARK_RED + "You must donate to switch teams!");
                 return true;
             }
-            if (args.length == 0) // Add to random team
+            if (args.length == 0) // Oops
             {
-                if (plugin.redTeam.size()<plugin.arena.teamSize)
-                    plugin.joinTeam(p, "red");
-                else if (plugin.blueTeam.size()<plugin.arena.teamSize)
-                    plugin.joinTeam(p, "blue");
-                else if (plugin.greenTeam.size()<plugin.arena.teamSize)
-                    plugin.joinTeam(p, "green");
-                else if (plugin.orangeTeam.size()<plugin.arena.teamSize)
-                    plugin.joinTeam(p, "orange");
-                else p.sendMessage(ChatColor.RED + "Every team is full!");
+                p.sendMessage(ChatColor.RED + "You forgot to specify the team! /join <red|blue|green|orange>");
             }
             else if (args.length == 1) // Add to specified team
             {
-                if (args[0].equalsIgnoreCase("red"))
+                if (args[0].equalsIgnoreCase("red")){
+                    plugin.leaveTeam(p);
                     plugin.joinTeam(p,"red");
-                else if (args[0].equalsIgnoreCase("blue"))
+                }
+                else if (args[0].equalsIgnoreCase("blue")){
+                    plugin.leaveTeam(p);
                     plugin.joinTeam(p,"blue");
-                else if (args[0].equalsIgnoreCase("green"))
+                }
+                else if (args[0].equalsIgnoreCase("green")){
+                    plugin.leaveTeam(p);
                     plugin.joinTeam(p,"green");
-                else if (args[0].equalsIgnoreCase("orange"))
+                }
+                else if (args[0].equalsIgnoreCase("orange")){
+                    plugin.leaveTeam(p);
                     plugin.joinTeam(p,"orange");
+                }
                 else p.sendMessage(ChatColor.DARK_RED + "The Team " + args[0] + " is Invalid!");
             }
             else p.sendMessage(ChatColor.RED + "Too Many Arguments. /join <red|blue|green|orange>");

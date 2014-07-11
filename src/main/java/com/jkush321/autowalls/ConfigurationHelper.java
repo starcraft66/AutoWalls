@@ -32,14 +32,14 @@ public class ConfigurationHelper {
 
     public void setup(Plugin p) {
         ConfigurationHelper.p = p;
-        if (p.getConfig().getInt("config-version") == AutoWalls.CONFIG_VERSION) {
+        if (p.getConfig().getInt("version") == AutoWalls.CONFIG_VERSION) {
             AutoWalls.config_todate = true;
         }else{
             File config = new File(p.getDataFolder(), "config.yml");
             config.delete();
         }
 
-        p.getConfig().options().copyDefaults(true);
+        //p.getConfig().options().copyDefaults(true);
         p.saveDefaultConfig();
 
         arenaFile = new File(p.getDataFolder(), "arena.yml");
@@ -94,7 +94,7 @@ public class ConfigurationHelper {
 
     public void reloadArena() {
         arena = YamlConfiguration.loadConfiguration(arenaFile);
-        if(arena.getInt("version", 0) != ARENA_VERSION){
+        if(arena.getInt("version") != ARENA_VERSION){
             moveFile(arenaFile);
             reloadArena();
         }
@@ -191,7 +191,7 @@ public class ConfigurationHelper {
         int i = 0;
         for(String key : configSection.getKeys(false)){
             i++;
-            Bukkit.getLogger().info("Found configuration information for map " + key + " (" + getArenaName(Integer.parseInt(key)) + ")");
+            //Bukkit.getLogger().info("Found configuration information for map " + key + " (" + getArenaName(Integer.parseInt(key)) + ")");
         }
         return i;
     }

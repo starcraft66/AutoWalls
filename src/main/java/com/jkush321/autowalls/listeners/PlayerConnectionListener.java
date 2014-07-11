@@ -10,19 +10,25 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Random;
 
 public class PlayerConnectionListener implements Listener {
 
     private AutoWalls plugin;
+    private int joinTeamIndex;
 
     public PlayerConnectionListener(AutoWalls plugin) {
         this.plugin = plugin;
+        this.joinTeamIndex = 0;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e)
     {
-        e.setJoinMessage(ChatColor.AQUA + "+ " + ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.GRAY + " is now online");
+        //e.setJoinMessage(ChatColor.AQUA + "+ " + ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.GRAY + " is now online");
         if (AutoWalls.gameInProgress) {
             plugin.spectate(e.getPlayer());
             for (Player p : AutoWalls.playing)
@@ -31,11 +37,7 @@ public class PlayerConnectionListener implements Listener {
             }
         }
         e.getPlayer().setGameMode(GameMode.ADVENTURE);
-        if (e.getPlayer().hasPermission("walls.op"))
-        {
-            UpdateChecker.checkAndSendMessage(e.getPlayer());
-        }
-        Tabs.addPlayer(e.getPlayer());
+
         Arena arena = Arena.getInstance();
         e.getPlayer().teleport(new Location(Bukkit.getWorlds().get(0),arena.lobbySpawn[0],arena.lobbySpawn[1],arena.lobbySpawn[2]));
         e.getPlayer().getInventory().clear();
@@ -48,6 +50,7 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerLoginEvent e)
     {
+        final ConfigurationHelper ch = ConfigurationHelper.getInstance();
         if (AutoWalls.config.isSet("votes.players." + e.getPlayer().getName()) && AutoWalls.config.getInt("votes.players." + e.getPlayer().getName()) >= 20) { e.getPlayer().setDisplayName(ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.WHITE); }
         if (AutoWalls.config.isSet("votes.players." + e.getPlayer().getName()) && AutoWalls.config.getInt("votes.players." + e.getPlayer().getName()) >= 250) { e.getPlayer().setDisplayName(ChatColor.DARK_RED + e.getPlayer().getName() + ChatColor.WHITE); }
 
@@ -92,22 +95,92 @@ public class PlayerConnectionListener implements Listener {
             e.disallow(PlayerLoginEvent.Result.KICK_FULL, AutoWalls.fullKickMessage);
         }
 
-        Tabs.updateAll();
+        final Player p = e.getPlayer();
 
         e.getPlayer().getInventory().clear();
         e.getPlayer().getInventory().setArmorContents(new ItemStack[]{new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
+        BukkitTask joinTeam = new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < plugin.arena.teamSize; i++) {
+                    if (!AutoWalls.playing.contains(p)) {
+                        if (plugin.redTeam.size() == i) {
+                            plugin.joinTeam(p, "red");
+                        } else if (plugin.blueTeam.size() == i) {
+                            plugin.joinTeam(p, "blue");
+                        } else if (plugin.greenTeam.size() == i) {
+                            plugin.joinTeam(p, "green");
+                        } else if (plugin.orangeTeam.size() == i) {
+                            plugin.joinTeam(p, "orange");
+                        }
+                    }
+                }
+
+                //SHITTY!
+
+                /* else {
+                switch(randomInt) {
+                    case 0:
+                        if (plugin.redTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "red");
+                        else if (plugin.blueTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "blue");
+                        else if (plugin.greenTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "green");
+                        else if (plugin.orangeTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "orange");
+                        else p.sendMessage(ChatColor.RED + "Every team is full!");
+                        break;
+                    case 1:
+                        if (plugin.blueTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "blue");
+                        else if (plugin.greenTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "green");
+                        else if (plugin.orangeTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "orange");
+                        else if (plugin.redTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "red");
+                        else p.sendMessage(ChatColor.RED + "Every team is full!");
+                        break;
+                    case 2:
+                        if (plugin.greenTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "green");
+                        else if (plugin.orangeTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "orange");
+                        else if (plugin.redTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "red");
+                        else if (plugin.blueTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "blue");
+                        else p.sendMessage(ChatColor.RED + "Every team is full!");
+                        break;
+                    case 3:
+                        if (plugin.orangeTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "orange");
+                        else if (plugin.redTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "red");
+                        else if (plugin.blueTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "blue");
+                        else if (plugin.greenTeam.size()<plugin.arena.teamSize)
+                            plugin.joinTeam(p, "green");
+                        else p.sendMessage(ChatColor.RED + "Every team is full!");
+                        break;
+                }
+                }*/
+
+                p.sendMessage(ChatColor.YELLOW + "The current map is " + ch.getArenaName(plugin.getConfig().getInt("next-map")) + " by " + ch.getArenaAuthor(plugin.getConfig().getInt("next-map")) + ".");
+            }
+        }.runTaskLater(plugin, 10L);
 
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e)
     {
-        plugin.resetPlayer(e.getPlayer());
+        plugin.resetPlayer(e.getPlayer(), false);
         if (AutoWalls.playing.contains(e.getPlayer()) && !AutoWalls.gameInProgress) plugin.leaveTeam(e.getPlayer());
         if (AutoWalls.getLastEvent(e.getPlayer()) != 0) AutoWalls.lastEvent.remove(e.getPlayer());
         plugin.checkStats();
         Tags.refreshPlayer(e.getPlayer());
-        Tabs.removePlayer(e.getPlayer());
         e.setQuitMessage(ChatColor.AQUA + "- " + ChatColor.DARK_AQUA + e.getPlayer().getName() + ChatColor.GRAY + " has left");
     }
     

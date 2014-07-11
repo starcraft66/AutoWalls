@@ -1,7 +1,6 @@
 package com.jkush321.autowalls.commands;
 
 import com.jkush321.autowalls.AutoWalls;
-import com.jkush321.autowalls.JoinTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -19,8 +18,8 @@ public class ForceStartCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cmdSender, Command cmd, String label, String[] args) {
 
-        if (cmdSender.hasPermission("walls.op") || cmdSender.isOp() && plugin.gameInProgress) {
-            if (plugin.playing.size() >= 2 && !plugin.gameInProgress && JoinTimer.timeleft <= 0) {
+        if (cmdSender.hasPermission("walls.forcestart") || cmdSender.hasPermission("walls.op") || cmdSender.isOp()) {
+            if (plugin.playing.size() >= 2 && !plugin.gameInProgress) {
                 Bukkit.broadcastMessage(ChatColor.DARK_RED + "FORCE STARTING GAME");
                 plugin.startGame();
             }

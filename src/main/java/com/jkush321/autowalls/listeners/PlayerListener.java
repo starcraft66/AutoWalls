@@ -8,17 +8,17 @@ import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.metadata.FixedMetadataValue;
+import sun.security.util.AuthResources_it;
 
 import java.util.Random;
 import java.util.logging.Level;
@@ -54,7 +54,9 @@ public class PlayerListener implements Listener {
     public void onDamage(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (!(AutoWalls.playing.contains(p))) {
+            if (!AutoWalls.gameInProgress) {
+                e.setCancelled(true);
+            } else if (!(AutoWalls.playing.contains(p))) {
                 e.setCancelled(true);
             }
         }
@@ -292,18 +294,39 @@ public class PlayerListener implements Listener {
                 plugin.checkStats();
                 Tags.refreshPlayer(e.getEntity());
                 AutoWalls.addDeadPlayer(e.getEntity().getName());
-                Tabs.updateAll();
-                plugin.resetPlayer(e.getEntity());
+                plugin.resetPlayer(e.getEntity(), true);
             }
         } catch (Exception ex) { ex.printStackTrace(); }
-        Tabs.updateAll();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent e)
     {
         if (AutoWalls.gameInProgress) plugin.spectate(e.getPlayer());
-        plugin.resetPlayer(e.getPlayer());
+        plugin.resetPlayer(e.getPlayer(), false);
+    }
+
+    @EventHandler
+    public void onFoodChange(FoodLevelChangeEvent e) {
+        if (!AutoWalls.gameInProgress) {
+            e.setFoodLevel(20);
+            e.setCancelled(true);
+        } else if (!AutoWalls.playing.contains((Player) e.getEntity())) {
+            e.setFoodLevel(20);
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void itemFrame(HangingBreakByEntityEvent e) {
+    if (e.getEntity() instanceof ItemFrame) {
+        if (e.getRemover() instanceof Player) {
+            Player p = (Player) e.getRemover();
+            if (!(p.hasPermission("walls.op") || p.isOp())) {
+                e.setCancelled(true);
+            }
+        }
+    }
     }
 
     @EventHandler
@@ -312,6 +335,16 @@ public class PlayerListener implements Listener {
         AutoWalls.setLastEventToNow(e.getPlayer());
 
         Player p = e.getPlayer();
+
+        if (e.getTo().getY() < 0) {
+            if (!AutoWalls.playing.contains(e.getPlayer())) {
+                ConfigurationHelper ch = ConfigurationHelper.getInstance();
+                e.getPlayer().teleport(ch.getLobbySpawn(plugin.getConfig().getInt("next-map")));
+            } else if (AutoWalls.playing.contains(p) || !AutoWalls.gameInProgress) {
+                ConfigurationHelper ch = ConfigurationHelper.getInstance();
+                e.getPlayer().teleport(ch.getLobbySpawn(plugin.getConfig().getInt("next-map")));
+            }
+        }
 
         //FINALLY! Prevent pretty much all forms of cheating by not allowing players to leave their quadrants.
 

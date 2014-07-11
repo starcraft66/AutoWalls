@@ -35,39 +35,28 @@ public class TeamChat {
 	public static List<Player> teamChatting = new ArrayList<Player>();
 	
 	// Return = Normal Chat Canceled (True if talking to only a certain group)
-	public static boolean say(Player p, String message)
+	public static boolean say(Player p, String message) {
+        if (!playing.contains(p)) {
+            sayToTeam(message, 4, p);
+        } else {
+            if (teamChatting.contains(p)) {
+                if (redTeam.contains(p)) {
+                    sayToTeam(message, 0, p);
+                } else if (blueTeam.contains(p)) {
+                    sayToTeam(message, 1, p);
+                } else if (greenTeam.contains(p)) {
+                    sayToTeam(message, 2, p);
+                } else if (orangeTeam.contains(p)) {
+                    sayToTeam(message, 3, p);
+                }
+            } else sayToTeam(message, 5, p);
+        }
+        return true;
+    }
+
+    public static void sayToTeam(String message, int team, Player pl) //red = 0; blue = 1; green = 2; orange = 3; 4 = spectators; other = global;
 	{
-		if (!playing.contains(p))
-		{
-			sayToTeam(message, 4, p);
-		}
-		else
-		{
-			if (teamChatting.contains(p))
-			{
-				if (redTeam.contains(p))
-				{
-					sayToTeam(message,0, p);
-				}
-				else if (blueTeam.contains(p))
-				{
-					sayToTeam(message,1, p);
-				}
-				else if (greenTeam.contains(p))
-				{
-					sayToTeam(message,2, p);
-				}
-				else if (orangeTeam.contains(p))
-				{
-					sayToTeam(message,3, p);
-				}
-			}
-			else sayToTeam(message,5, p);
-		}
-		return true;
-	}
-	public static void sayToTeam(String message, int team, Player pl) //red = 0; blue = 1; green = 2; orange = 3; 4 = spectators; other = global;
-	{
+        if (AutoWalls.gameInProgress) {
 		if (team==0)
 		{
 			for (Player p : Bukkit.getOnlinePlayers())
@@ -127,5 +116,23 @@ public class TeamChat {
 
             }
 		}
+        } else {
+            if (redTeam.contains(pl)) {
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.RED + "RED" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
+
+            }
+            else if (blueTeam.contains(pl)) {
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.BLUE + "BLUE" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
+
+            }
+            else if (greenTeam.contains(pl)) {
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.GREEN + "GREEN" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
+
+            }
+            else if (orangeTeam.contains(pl)) {
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "[" + ChatColor.GOLD + "ORANGE" + ChatColor.YELLOW + "]" + ChatColor.WHITE + message);
+
+            }
+        }
 	}
 }
